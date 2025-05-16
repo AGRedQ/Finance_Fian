@@ -26,22 +26,33 @@ def company_to_ticker(company_name):
 def fetch_and_plot_stock(ticker):
     try:
         stock = yf.Ticker(ticker)
-        df = stock.history(period="6mo")
+        df = stock.history(period="max")
 
         if df.empty:
             st.error("No data found for ticker.")
             return
 
-        st.write(f"Displaying stock data for {ticker}")
-        st.write(df.tail(5))
+        # Calculate SMAs
+        df["SMA50"] = df["Close"].rolling(window=50).mean()
+        df["SMA200"] = df["Close"].rolling(window=200).mean()
 
-        # Plot stock data
-        fig, ax = plt.subplots()
-        df["Close"].plot(ax=ax, title=f"{ticker} Stock Closing Prices (6 months)")
+        st.write(f"Displaying full historical stock data for **{ticker}**")
+        st.dataframe(df.tail(5))
+
+        # Plot Closing Price + SMA50 + SMA200
+        fig, ax = plt.subplots(figsize=(14, 7))
+        ax.plot(df.index, df["Close"], label="Close Price", color="blue", alpha=0.6)
+        ax.plot(df.index, df["SMA50"], label="SMA50", color="orange")
+        ax.plot(df.index, df["SMA200"], label="SMA200", color="green")
+
+        ax.set_title(f"{ticker} Closing Price with SMA50 & SMA200")
         ax.set_xlabel("Date")
-        ax.set_ylabel("Close Price")
+        ax.set_ylabel("Price")
         ax.grid(True)
+        ax.legend()
+
         st.pyplot(fig)
+
     except Exception as e:
         st.error(f"Error fetching stock data: {e}")
 
@@ -51,7 +62,7 @@ company = st.text_input("Enter a company name (e.g., Tesla, Apple, FPT):")
 
 if company:
     ticker = company_to_ticker(company)
-
+    
     if ticker:
         fetch_and_plot_stock(ticker)
     else:
