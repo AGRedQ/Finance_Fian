@@ -1,51 +1,61 @@
 import streamlit as st
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from transformers import pipeline
 
-st.title("Chatbot with DialoGPT (Hugging Face)")
-
-# Load tokenizer and model once
 @st.cache(allow_output_mutation=True)
-def load_model():
-    tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
-    model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
-    return tokenizer, model
+def load_models():
+    intent_classifier = pipeline("zero-shot-classification",
+                                 model="facebook/bart-large-mnli")
+    ner_tagger = pipeline("ner", grouped_entities=True)
+    return intent_classifier, ner_tagger
 
-tokenizer, model = load_model()
+def detect_intent(text, intent_classifier, candidate_intents):
+    result = intent_classifier(text, candidate_intents)
+    return result['labels'][0], result['scores'][0]
 
-if "chat_history_ids" not in st.session_state:
-    st.session_state.chat_history_ids = None
-if "step" not in st.session_state:
-    st.session_state.step = 0
+def detect_entities(text, ner_tagger, indicators, companies):
+    entities = ner_tagger(text)
+    orgs = [ent['word'] for ent in entities if ent['entity_group'] == 'ORG']
+    indicators_found = [ind for ind in indicators if ind in text.lower()]
+    companies_found = [comp for comp in companies if comp in text.lower()]
+    return orgs + companies_found, indicators_found
 
-user_input = st.text_input("You:")
+def main():
+    st.title("Finance Fian - NLP Intent & Entity Detector")
 
-if user_input:
-    # Encode the input and add to chat history
-    new_user_input_ids = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors='pt')
+    intent_classifier, ner_tagger = load_models()
 
-    if st.session_state.chat_history_ids is not None:
-        bot_input_ids = torch.cat([st.session_state.chat_history_ids, new_user_input_ids], dim=-1)
-    else:
-        bot_input_ids = new_user_input_ids
+    candidate_intents = [
+        "greet",
+        "goodbye",
+        "ask_stock_price",
+        "ask_indicator",
+        "ask_sentiment",
+        "ask_general_info"
+    ]
 
-    # Generate response
-    st.session_state.chat_history_ids = model.generate(bot_input_ids, max_length=1000, pad_token_id=tokenizer.eos_token_id)
+    INDICATORS = ["sma", "rsi", "macd", "bollinger", "moving average"]
+    COMPANIES = ["apple", "tesla", "microsoft", "google", "amazon"]
 
-    # Decode and display output
-    bot_output = tokenizer.decode(st.session_state.chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
+    user_input = st.text_input("Ask Finance Fian anything:")
 
-    # Save conversation in session_state to display
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    if user_input:
+        intent, confidence = detect_intent(user_input, intent_classifier, candidate_intents)
+        entities, indicators = detect_entities(user_input, ner_tagger, INDICATORS, COMPANIES)
 
-    st.session_state.messages.append(("You", user_input))
-    st.session_state.messages.append(("Bot", bot_output))
+        st.markdown(f"**Detected Intent:** {intent} (confidence: {confidence:.2f})")
+        st.markdown(f"**Detected Companies:** {entities if entities else 'None'}")
+        st.markdown(f"**Detected Indicators:** {indicators if indicators else 'None'}")
 
-# Show conversation
-if "messages" in st.session_state:
-    for sender, msg in st.session_state.messages:
-        if sender == "You":
-            st.markdown(f"<div style='text-align: right; color: blue;'><b>You:</b> {msg}</div>", unsafe_allow_html=True)
+        if intent == "ask_stock_price" and entities:
+            st.success(f"Fetching stock price for {entities[0].title()}...")
+        elif intent == "ask_indicator" and entities and indicators:
+            st.success(f"Calculating {', '.join(indicators)} for {entities[0].title()}...")
+        elif intent == "greet":
+            st.info("Hello! How can I assist with stocks today?")
+        elif intent == "goodbye":
+            st.info("Goodbye! Have a great day!")
         else:
-            st.markdown(f"<div style='text-align: left; color: green;'><b>Bot:</b> {msg}</div>", unsafe_allow_html=True)
+            st.warning("Sorry, I didn't quite get that. Could you please rephrase?")
+
+if __name__ == "__main__":
+    main()

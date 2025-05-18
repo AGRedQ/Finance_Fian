@@ -19,6 +19,15 @@ def company_to_ticker(company_name):
     except Exception as e:
         print(f"Error while fetching ticker: {e}")
         return None
+
+
+def data_preprocessing(df):
+
+    print("Data Extracted Successfully")
+    print(df)
+
+
+
 def fetch_and_plot_stock(ticker):
     try:
         stock = yf.Ticker(ticker)
@@ -36,6 +45,7 @@ def fetch_and_plot_stock(ticker):
         plt.ylabel("Close Price")
         plt.grid(True)
         plt.show()
+        return df
     except Exception as e:
         print(f"Error fetching stock data: {e}")
 
@@ -44,6 +54,7 @@ company = input("Enter a company name (e.g., Tesla, Apple, FPT): ")
 ticker = company_to_ticker(company)
 
 if ticker:
-    fetch_and_plot_stock(ticker)
+    df = fetch_and_plot_stock(ticker)
+    data_preprocessing(df)
 else:
     print("Company not found. Please try a different name.")
