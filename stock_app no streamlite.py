@@ -24,7 +24,20 @@ def company_to_ticker(company_name):
 def data_preprocessing(df):
 
     print("Data Extracted Successfully")
-    print(df)
+    # Keep only the Close price
+    close_prices = df[['Close']].copy()
+
+    # Replace the Date index with day counters: 0, 1, 2, ...
+    close_prices['Day'] = range(len(close_prices))
+
+    # Reorder columns for clarity
+    clean_df = close_prices[['Day', 'Close']]
+
+    # Optional: Save to a new CSV
+    clean_df.to_csv('cleaned_close_data.csv', index=False)
+
+    print(clean_df.head())
+
 
 
 
