@@ -1,0 +1,501 @@
+text,label
+Give me info on Apple.,get_info
+Will Meta go up next next month?,predict_something
+Which is better: Microsoft or Intel?,compare_stocks
+How does Microsoft compare to Apple?,compare_stocks
+I want the RSI of Meta.,calculate_metric
+Can you compute the MACD for Nvidia?,calculate_metric
+Will Amazon surge this week?,predict_something
+What's the RSI for AMD?,calculate_metric
+Who’s winning: Amazon or Meta?,compare_stocks
+Check the 200-day moving average for Tesla.,calculate_metric
+Can you predict Amazon's price by Friday?,predict_something
+Give me Tesla's moving average.,calculate_metric
+Do you expect Netflix to rise next week?,predict_something
+What's the RSI for Microsoft?,calculate_metric
+Check the 200-day moving average for AMD.,calculate_metric
+Show comparison between Netflix and Apple.,compare_stocks
+Can you compute the MACD for Amazon?,calculate_metric
+Do you expect Netflix to rise tomorrow?,predict_something
+What's the future of Tesla stock next month?,predict_something
+Get the Bollinger Bands for Tesla.,calculate_metric
+Background of Netflix?,get_info
+Where is Amazon's stock at right now?,shows_stock
+Show me Nvidia's 50-day average.,calculate_metric
+Give me a prediction for Meta this week.,predict_something
+Display today's price for Nvidia.,shows_stock
+I want the RSI of AMD.,calculate_metric
+Which is better: Meta or Microsoft?,compare_stocks
+What does Netflix manufacture?,get_info
+What's the EMA for Tesla?,calculate_metric
+Is Google going to drop next month?,predict_something
+Do you expect Intel to rise next week?,predict_something
+Will Intel go up next by Friday?,predict_something
+Will Nvidia go up next tomorrow?,predict_something
+Show comparison between Nvidia and Meta.,compare_stocks
+Give me a prediction for Meta next month.,predict_something
+Where is Microsoft's stock at right now?,shows_stock
+Where is Netflix's stock at right now?,shows_stock
+What's the current price of Microsoft?,shows_stock
+What company is Google?,get_info
+Show comparison between Amazon and Microsoft.,compare_stocks
+Who is behind Meta?,get_info
+Compare Tesla vs Intel.,compare_stocks
+Forecast Netflix's stock for by Friday.,predict_something
+Which stock performs better: Meta or Apple?,compare_stocks
+Explain Meta to me.,get_info
+What company is AMD?,get_info
+Compare Microsoft vs Intel.,compare_stocks
+Show me Google's stock chart.,shows_stock
+Give me Apple's quote.,shows_stock
+Show me AMD's 50-day average.,calculate_metric
+What's the future of AMD stock tomorrow?,predict_something
+Show Amazon vs AMD performance.,compare_stocks
+Is Nvidia stronger than Netflix?,compare_stocks
+What does Amazon do?,get_info
+Describe Apple.,get_info
+What is Nvidia's business model?,get_info
+What's the EMA for Tesla?,calculate_metric
+Compare AMD and Tesla.,compare_stocks
+Describe Tesla.,get_info
+Which is better: Intel or Nvidia?,compare_stocks
+What's the current price of Amazon?,shows_stock
+Compare Meta and Amazon.,compare_stocks
+Is AMD stronger than Google?,compare_stocks
+What does AMD manufacture?,get_info
+Show comparison between Microsoft and Google.,compare_stocks
+Expected price of Apple by by Friday?,predict_something
+Who’s winning: Netflix or AMD?,compare_stocks
+What's the future of Microsoft stock this week?,predict_something
+Can you show me Amazon's chart?,shows_stock
+Show me Apple's stock chart.,shows_stock
+Give me info on Netflix.,get_info
+Do you expect Tesla to rise tomorrow?,predict_something
+What's the EMA for Meta?,calculate_metric
+Describe Nvidia.,get_info
+Forecast Netflix's stock for by Friday.,predict_something
+What company is Apple?,get_info
+How will Nvidia perform by Friday?,predict_something
+Show Tesla vs AMD performance.,compare_stocks
+I want the RSI of Nvidia.,calculate_metric
+Forecast Tesla's stock for by Friday.,predict_something
+Give me Tesla's moving average.,calculate_metric
+Stock price of Microsoft please.,shows_stock
+Tell me about Apple.,get_info
+Where is Amazon's stock at right now?,shows_stock
+Can you predict Tesla's price next week?,predict_something
+Is Google going to drop next week?,predict_something
+Give me info on Amazon.,get_info
+Compare Netflix and Microsoft's performance.,compare_stocks
+What's the EMA for Netflix?,calculate_metric
+Get the Bollinger Bands for Microsoft.,calculate_metric
+Will AMD surge tomorrow?,predict_something
+Give me info on Microsoft.,get_info
+Can you predict Intel's price tomorrow?,predict_something
+I want the RSI of Meta.,calculate_metric
+Is Intel stronger than Meta?,compare_stocks
+How much is AMD trading at?,shows_stock
+Which is better: AMD or Netflix?,compare_stocks
+What's the RSI for AMD?,calculate_metric
+Calculate the SMA for Nvidia.,calculate_metric
+What's the EMA for Netflix?,calculate_metric
+Can you compute the MACD for Intel?,calculate_metric
+Tell me the live price for Meta.,shows_stock
+How will Google perform this week?,predict_something
+What's the future of Meta stock next week?,predict_something
+Display today's price for Microsoft.,shows_stock
+Where is AMD's stock at right now?,shows_stock
+Check the 200-day moving average for Amazon.,calculate_metric
+Stock price of Intel please.,shows_stock
+Stock price of Apple please.,shows_stock
+Is Meta stronger than Intel?,compare_stocks
+Check the 200-day moving average for Google.,calculate_metric
+What's the RSI for Google?,calculate_metric
+How does AMD compare to Tesla?,compare_stocks
+Compare Tesla and AMD's performance.,compare_stocks
+What company is Amazon?,get_info
+Will Google surge by Friday?,predict_something
+How much is AMD trading at?,shows_stock
+What's the future of Microsoft stock tomorrow?,predict_something
+Is Amazon going to drop tomorrow?,predict_something
+Tell me about Intel.,get_info
+Give me Microsoft's moving average.,calculate_metric
+Explain Netflix to me.,get_info
+Stock price of Intel please.,shows_stock
+Will Intel surge tomorrow?,predict_something
+Can you show me Netflix's chart?,shows_stock
+Explain Microsoft to me.,get_info
+Give me AMD's quote.,shows_stock
+Who’s winning: Nvidia or Intel?,compare_stocks
+Show Amazon vs Meta performance.,compare_stocks
+What is Apple's business model?,get_info
+What's the EMA for Microsoft?,calculate_metric
+How will Netflix perform next month?,predict_something
+How much is Meta trading at?,shows_stock
+Who is behind Google?,get_info
+What does Netflix manufacture?,get_info
+Show me Microsoft's 50-day average.,calculate_metric
+Show comparison between Apple and Netflix.,compare_stocks
+Do you expect Netflix to rise this week?,predict_something
+What does Netflix do?,get_info
+Give me Amazon's quote.,shows_stock
+Who’s winning: Meta or Microsoft?,compare_stocks
+Get the Bollinger Bands for Microsoft.,calculate_metric
+What is Intel's business model?,get_info
+I want the RSI of Netflix.,calculate_metric
+What company is Apple?,get_info
+Tell me about Tesla.,get_info
+Describe Amazon.,get_info
+What is Microsoft's business model?,get_info
+What's the EMA for Microsoft?,calculate_metric
+How much is Meta trading at?,shows_stock
+Who is behind Amazon?,get_info
+What's the current price of Nvidia?,shows_stock
+Show me Meta's stock chart.,shows_stock
+Tell me the live price for Amazon.,shows_stock
+Background of AMD?,get_info
+How much is Apple trading at?,shows_stock
+Tell me about Microsoft.,get_info
+Which is better: Tesla or Meta?,compare_stocks
+What is Meta's business model?,get_info
+Forecast Google's stock for next week.,predict_something
+Give me Amazon's quote.,shows_stock
+Which is better: Meta or Meta?,compare_stocks
+Is Amazon going to drop this week?,predict_something
+Which stock performs better: Meta or Google?,compare_stocks
+How does Amazon compare to Tesla?,compare_stocks
+I want the RSI of AMD.,calculate_metric
+Stock price of Apple please.,shows_stock
+Who is behind Tesla?,get_info
+Give me Netflix's moving average.,calculate_metric
+Show me Amazon's 50-day average.,calculate_metric
+Show comparison between Intel and Tesla.,compare_stocks
+Compare Google and Google.,compare_stocks
+Can you show me Apple's chart?,shows_stock
+Compare Apple and Tesla's performance.,compare_stocks
+Who is behind Tesla?,get_info
+Calculate the SMA for Meta.,calculate_metric
+Explain Intel to me.,get_info
+Background of AMD?,get_info
+Expected price of Nvidia by tomorrow?,predict_something
+Can you compute the MACD for Amazon?,calculate_metric
+What does Google do?,get_info
+Background of Apple?,get_info
+Give me Google's quote.,shows_stock
+How will Amazon perform tomorrow?,predict_something
+How much is Amazon trading at?,shows_stock
+Give me a prediction for Tesla this week.,predict_something
+Give me Tesla's quote.,shows_stock
+What is the momentum for Netflix?,calculate_metric
+Will Meta go up next this week?,predict_something
+Calculate the SMA for Microsoft.,calculate_metric
+Check the 200-day moving average for Intel.,calculate_metric
+Show me Apple's stock chart.,shows_stock
+Calculate the SMA for Netflix.,calculate_metric
+Give me info on Intel.,get_info
+Compare Netflix vs Netflix.,compare_stocks
+Can you show me AMD's chart?,shows_stock
+Which stock performs better: Microsoft or Amazon?,compare_stocks
+Show me Meta's stock chart.,shows_stock
+What is the momentum for AMD?,calculate_metric
+Give me Nvidia's quote.,shows_stock
+Can you show me Tesla's chart?,shows_stock
+How will Apple perform this week?,predict_something
+Is Google stronger than Google?,compare_stocks
+Forecast Intel's stock for next week.,predict_something
+What company is Amazon?,get_info
+Show Microsoft vs Google performance.,compare_stocks
+Can you compute the MACD for Nvidia?,calculate_metric
+Describe Apple.,get_info
+Get the Bollinger Bands for Tesla.,calculate_metric
+Can you compute the MACD for Google?,calculate_metric
+Tell me about Microsoft.,get_info
+Will Amazon surge this week?,predict_something
+Compare Meta and Microsoft's performance.,compare_stocks
+Can you compute the MACD for Tesla?,calculate_metric
+Who’s winning: Google or Amazon?,compare_stocks
+What company is Netflix?,get_info
+Display today's price for AMD.,shows_stock
+Is Nvidia stronger than Tesla?,compare_stocks
+Who’s winning: Intel or Amazon?,compare_stocks
+Describe Tesla.,get_info
+What company is Meta?,get_info
+What is the momentum for Apple?,calculate_metric
+Describe Microsoft.,get_info
+How does Intel compare to Intel?,compare_stocks
+Calculate the SMA for Netflix.,calculate_metric
+Show me Apple's stock chart.,shows_stock
+Can you show me Nvidia's chart?,shows_stock
+What's the future of Intel stock this week?,predict_something
+Do you expect Google to rise next week?,predict_something
+What does Netflix manufacture?,get_info
+How will Netflix perform next week?,predict_something
+Can you show me Microsoft's chart?,shows_stock
+Do you expect Meta to rise next month?,predict_something
+What's Amazon doing today?,shows_stock
+Can you predict Microsoft's price this week?,predict_something
+Can you compute the MACD for Nvidia?,calculate_metric
+What's the RSI for Amazon?,calculate_metric
+Tell me about Microsoft.,get_info
+Tell me the live price for Intel.,shows_stock
+Is Amazon going to drop next week?,predict_something
+Calculate the SMA for Meta.,calculate_metric
+Forecast Microsoft's stock for next week.,predict_something
+How does AMD compare to Netflix?,compare_stocks
+Calculate the SMA for Amazon.,calculate_metric
+How will Apple perform by Friday?,predict_something
+What's the RSI for Tesla?,calculate_metric
+What's the RSI for AMD?,calculate_metric
+Check the 200-day moving average for Amazon.,calculate_metric
+What does Amazon manufacture?,get_info
+Background of Intel?,get_info
+Compare Apple vs Amazon.,compare_stocks
+Will Tesla surge next week?,predict_something
+Will Netflix go up next tomorrow?,predict_something
+Will Amazon go up next next week?,predict_something
+What is Meta's business model?,get_info
+How does Intel compare to Netflix?,compare_stocks
+Show me Microsoft's 50-day average.,calculate_metric
+Will Intel go up next by Friday?,predict_something
+Can you predict Intel's price this week?,predict_something
+How does Google compare to Nvidia?,compare_stocks
+Get the Bollinger Bands for Intel.,calculate_metric
+Who is behind Google?,get_info
+Can you predict Netflix's price next month?,predict_something
+What's the EMA for Google?,calculate_metric
+Is AMD going to drop next month?,predict_something
+Will Tesla surge tomorrow?,predict_something
+Show me Amazon's stock chart.,shows_stock
+Display today's price for AMD.,shows_stock
+Who is behind Tesla?,get_info
+What does Nvidia do?,get_info
+Which is better: Intel or AMD?,compare_stocks
+Give me a prediction for Google by Friday.,predict_something
+What does Apple do?,get_info
+Show me Tesla's stock chart.,shows_stock
+Tell me about Amazon.,get_info
+Give me info on AMD.,get_info
+Stock price of Tesla please.,shows_stock
+Stock price of Amazon please.,shows_stock
+Show me Google's 50-day average.,calculate_metric
+Who is behind Microsoft?,get_info
+Display today's price for Netflix.,shows_stock
+Give me Apple's quote.,shows_stock
+Get the Bollinger Bands for Nvidia.,calculate_metric
+Get the Bollinger Bands for Intel.,calculate_metric
+How does Microsoft compare to Apple?,compare_stocks
+Give me info on Nvidia.,get_info
+Do you expect Nvidia to rise next month?,predict_something
+Tell me the live price for Netflix.,shows_stock
+What's the current price of Microsoft?,shows_stock
+What does Intel do?,get_info
+How much is Microsoft trading at?,shows_stock
+Compare Microsoft and Tesla.,compare_stocks
+I want the RSI of Apple.,calculate_metric
+Describe Tesla.,get_info
+Give me Tesla's moving average.,calculate_metric
+Background of Nvidia?,get_info
+Show comparison between Meta and Nvidia.,compare_stocks
+Give me Google's moving average.,calculate_metric
+What's the current price of Netflix?,shows_stock
+Display today's price for Google.,shows_stock
+Describe Google.,get_info
+Will AMD surge this week?,predict_something
+Compare Amazon vs Netflix.,compare_stocks
+How will Google perform this week?,predict_something
+What does Google manufacture?,get_info
+Which stock performs better: Intel or Amazon?,compare_stocks
+Give me info on Tesla.,get_info
+What is the momentum for AMD?,calculate_metric
+Show Netflix vs Amazon performance.,compare_stocks
+Can you predict Netflix's price this week?,predict_something
+Show Amazon vs AMD performance.,compare_stocks
+What's the current price of Amazon?,shows_stock
+Can you show me Google's chart?,shows_stock
+Which is better: Apple or AMD?,compare_stocks
+Expected price of Meta by by Friday?,predict_something
+What's the future of AMD stock next week?,predict_something
+Compare Microsoft and Nvidia's performance.,compare_stocks
+What's Microsoft doing today?,shows_stock
+What does Amazon do?,get_info
+Is Tesla going to drop this week?,predict_something
+Show me Microsoft's stock chart.,shows_stock
+Can you predict Intel's price next week?,predict_something
+What's the current price of Meta?,shows_stock
+What does Intel manufacture?,get_info
+Stock price of Amazon please.,shows_stock
+How much is Netflix trading at?,shows_stock
+What's Netflix doing today?,shows_stock
+What is the momentum for Microsoft?,calculate_metric
+What's the future of Apple stock by Friday?,predict_something
+Explain Nvidia to me.,get_info
+What's Amazon doing today?,shows_stock
+Show comparison between Nvidia and Intel.,compare_stocks
+Tell me the live price for Tesla.,shows_stock
+Compare Meta and AMD's performance.,compare_stocks
+Background of Nvidia?,get_info
+What does Intel do?,get_info
+What does Microsoft manufacture?,get_info
+Show comparison between AMD and Apple.,compare_stocks
+Give me Google's moving average.,calculate_metric
+Where is Microsoft's stock at right now?,shows_stock
+Show Amazon vs Nvidia performance.,compare_stocks
+Display today's price for Tesla.,shows_stock
+Is Apple going to drop by Friday?,predict_something
+Calculate the SMA for Apple.,calculate_metric
+Expected price of Google by next week?,predict_something
+Give me a prediction for Microsoft this week.,predict_something
+Tell me about Intel.,get_info
+Show me Intel's 50-day average.,calculate_metric
+Compare Apple vs Netflix.,compare_stocks
+Give me a prediction for Meta this week.,predict_something
+Show Tesla vs Netflix performance.,compare_stocks
+What company is Intel?,get_info
+Show me Netflix's 50-day average.,calculate_metric
+What's Nvidia doing today?,shows_stock
+What's Intel doing today?,shows_stock
+Which stock performs better: Intel or Nvidia?,compare_stocks
+Background of Apple?,get_info
+Which stock performs better: Netflix or Nvidia?,compare_stocks
+Calculate the SMA for Intel.,calculate_metric
+Show me Nvidia's 50-day average.,calculate_metric
+Compare Google and Microsoft's performance.,compare_stocks
+Give me Intel's quote.,shows_stock
+Is Google stronger than Amazon?,compare_stocks
+Who is behind Apple?,get_info
+What is Netflix's business model?,get_info
+What is the momentum for Google?,calculate_metric
+What's Intel doing today?,shows_stock
+Compare Microsoft and AMD.,compare_stocks
+Will Microsoft go up next next week?,predict_something
+Is Microsoft stronger than Intel?,compare_stocks
+What's the EMA for AMD?,calculate_metric
+I want the RSI of Netflix.,calculate_metric
+What's Nvidia doing today?,shows_stock
+Forecast Apple's stock for next month.,predict_something
+Compare Meta and Apple's performance.,compare_stocks
+Explain Amazon to me.,get_info
+Background of Apple?,get_info
+Is Google stronger than Nvidia?,compare_stocks
+Where is Google's stock at right now?,shows_stock
+Who’s winning: Microsoft or Meta?,compare_stocks
+Tell me the live price for Intel.,shows_stock
+What does Netflix manufacture?,get_info
+What is Meta's business model?,get_info
+I want the RSI of Amazon.,calculate_metric
+Is Nvidia going to drop next month?,predict_something
+Expected price of Netflix by this week?,predict_something
+Give me Microsoft's quote.,shows_stock
+Give me info on Meta.,get_info
+Check the 200-day moving average for Google.,calculate_metric
+Is Intel going to drop next week?,predict_something
+Forecast Apple's stock for by Friday.,predict_something
+Calculate the SMA for Nvidia.,calculate_metric
+How will Intel perform next week?,predict_something
+What's Apple doing today?,shows_stock
+Compare Meta vs Tesla.,compare_stocks
+Show me AMD's stock chart.,shows_stock
+Tell me about Amazon.,get_info
+Compare Intel vs AMD.,compare_stocks
+What does Intel manufacture?,get_info
+What does Apple do?,get_info
+Explain Nvidia to me.,get_info
+Will AMD go up next this week?,predict_something
+Do you expect AMD to rise next week?,predict_something
+What's the future of Meta stock tomorrow?,predict_something
+Compare Tesla and Netflix.,compare_stocks
+What's the RSI for Nvidia?,calculate_metric
+Compare Tesla vs Nvidia.,compare_stocks
+Get the Bollinger Bands for Google.,calculate_metric
+Explain Netflix to me.,get_info
+Which stock performs better: Intel or Meta?,compare_stocks
+Give me a prediction for Meta next month.,predict_something
+How will Netflix perform by Friday?,predict_something
+What is the momentum for Amazon?,calculate_metric
+Compare Netflix and Intel.,compare_stocks
+What's the RSI for Tesla?,calculate_metric
+Check the 200-day moving average for Netflix.,calculate_metric
+Tell me the live price for Netflix.,shows_stock
+Background of Microsoft?,get_info
+Which stock performs better: Apple or Apple?,compare_stocks
+Give me a prediction for Netflix next week.,predict_something
+Compare Apple and Amazon's performance.,compare_stocks
+Can you predict Netflix's price tomorrow?,predict_something
+Stock price of Meta please.,shows_stock
+Who’s winning: Microsoft or Microsoft?,compare_stocks
+Compare AMD and Tesla.,compare_stocks
+What is Intel's business model?,get_info
+What's the current price of Tesla?,shows_stock
+What's the EMA for Amazon?,calculate_metric
+Will Nvidia go up next tomorrow?,predict_something
+Give me Microsoft's moving average.,calculate_metric
+Show me Nvidia's 50-day average.,calculate_metric
+Give me info on Amazon.,get_info
+What's the future of AMD stock next week?,predict_something
+How does Netflix compare to Apple?,compare_stocks
+Tell me the live price for Meta.,shows_stock
+Where is Microsoft's stock at right now?,shows_stock
+Who is behind Netflix?,get_info
+Compare Tesla and Amazon.,compare_stocks
+Where is Meta's stock at right now?,shows_stock
+How much is Intel trading at?,shows_stock
+Compare Meta and Netflix's performance.,compare_stocks
+Tell me the live price for Intel.,shows_stock
+Which is better: Intel or Nvidia?,compare_stocks
+Can you show me AMD's chart?,shows_stock
+Show comparison between Apple and Tesla.,compare_stocks
+What is the momentum for Google?,calculate_metric
+Expected price of Netflix by next week?,predict_something
+Compare Amazon and Tesla.,compare_stocks
+How does Netflix compare to Intel?,compare_stocks
+What does Intel do?,get_info
+Where is Microsoft's stock at right now?,shows_stock
+Get the Bollinger Bands for Nvidia.,calculate_metric
+How much is Amazon trading at?,shows_stock
+Tell me about Google.,get_info
+Display today's price for Apple.,shows_stock
+Which stock performs better: Meta or AMD?,compare_stocks
+What is Meta's business model?,get_info
+Will Microsoft surge by Friday?,predict_something
+Can you predict Netflix's price this week?,predict_something
+What is the momentum for Tesla?,calculate_metric
+Compare Microsoft vs Netflix.,compare_stocks
+Forecast Meta's stock for by Friday.,predict_something
+Expected price of Google by next week?,predict_something
+Tell me the live price for Google.,shows_stock
+Do you expect Netflix to rise this week?,predict_something
+I want the RSI of Microsoft.,calculate_metric
+Display today's price for Meta.,shows_stock
+Will Apple surge this week?,predict_something
+Who’s winning: Google or Nvidia?,compare_stocks
+Is Nvidia stronger than Nvidia?,compare_stocks
+Expected price of Nvidia by next week?,predict_something
+Check the 200-day moving average for Microsoft.,calculate_metric
+What's the current price of Microsoft?,shows_stock
+Who’s winning: Google or Amazon?,compare_stocks
+Show Microsoft vs Tesla performance.,compare_stocks
+Give me a prediction for Tesla next month.,predict_something
+Can you show me Amazon's chart?,shows_stock
+What is the momentum for Google?,calculate_metric
+What's Amazon doing today?,shows_stock
+What's the RSI for Netflix?,calculate_metric
+Can you compute the MACD for Meta?,calculate_metric
+Display today's price for Google.,shows_stock
+What's the current price of Meta?,shows_stock
+What company is Intel?,get_info
+Forecast Nvidia's stock for by Friday.,predict_something
+Expected price of Google by next month?,predict_something
+Explain Netflix to me.,get_info
+Show Microsoft vs Apple performance.,compare_stocks
+Give me a prediction for Microsoft next week.,predict_something
+Describe Google.,get_info
+Which stock performs better: Apple or Nvidia?,compare_stocks
+Check the 200-day moving average for Google.,calculate_metric
+Give me AMD's moving average.,calculate_metric
+Give me Netflix's moving average.,calculate_metric
+Can you compute the MACD for Google?,calculate_metric
+Which is better: Amazon or Netflix?,compare_stocks
+Explain Tesla to me.,get_info
+Expected price of Tesla by next month?,predict_something
+Stock price of Google please.,shows_stock
+Get the Bollinger Bands for Apple.,calculate_metric
