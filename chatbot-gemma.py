@@ -29,9 +29,9 @@ while True:
 
     # Prompt formatting
     prompt = f"""
-You are a helpful finance assistant. Extract the stock-related intent, ticker symbol, and time period from the user's sentence. 
+Extract the stock-related intent, ticker symbol, and time period from the user's sentence. 
 If any of them are missing or unclear, use null.
-
+Tags for intent: shows_stock, predict_rsi, predict_daily_return, predict_golden_cross.
 Return your answer in this JSON format only:
 {{
   "intent": "...",
