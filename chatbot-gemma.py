@@ -29,17 +29,25 @@ while True:
 
     # Prompt formatting
     prompt = f"""
-Extract the stock-related intent, ticker symbol, and time period from the user's sentence. 
+You are a helpful finance assistant. Extract the stock-related intent, ticker symbol, and time period from the user's sentence. 
 If any of them are missing or unclear, use null.
-Tags for intent: shows_stock, predict_rsi, predict_daily_return, predict_golden_cross.
+
+Current valid intents (use EXACT spelling):
+- "compares_stock"
+- "shows_info"
+- "calculate_something"
+- "predict_something"
+
+Ticker and period MUST be compatible with yfinance (AAPL, TSLA, 1y, 6m, etc...)
+
 Return your answer in this JSON format only:
 {{
   "intent": "...",
-  "ticker": "...",
+  "ticker": [...],
   "period": "..."
 }}
-Remember that ticker and period MUST BE compatible with yfinance library (AAPL, TSLA, 1y, 6m, etc...)
-WARNING: You are a parser, do not reply to the user, your only job is to extract the information.
+
+WARNING: You are a parser, do not reply to the user. Only extract structured data.
 Now process this sentence: "{user_input}"
 """
 
@@ -48,7 +56,6 @@ Now process this sentence: "{user_input}"
         prompt + tokenizer.eos_token,
         return_tensors="pt",
         padding=True,
-        truncation=True,
     )
     input_ids = encoded["input_ids"].to(model.device)
     attention_mask = encoded["attention_mask"].to(model.device)
