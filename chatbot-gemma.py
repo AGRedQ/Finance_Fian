@@ -28,7 +28,11 @@ while True:
         break
 
     # Construct prompt
-    prompt = f"You are a helpful finance assistant.\nUser: {user_input}\nAssistant:"
+    prompt = f"""You are a helpful finance assistant.
+    Here's the prediction: "The model predicts AAPL may rise 2.5% next week based on RSI and SMA indicators.""
+    Rephrase it naturally so that a casual investor can understand it. 
+    \nUser: {user_input}
+    \nAssistant:"""
 
     # Tokenize input
     encoded = tokenizer(prompt, return_tensors="pt").to(model.device)
@@ -54,3 +58,4 @@ while True:
         reply = response.strip()
 
     print(f"Gemma: {reply}\n")
+ 
