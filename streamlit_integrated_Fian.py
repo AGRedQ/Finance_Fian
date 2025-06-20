@@ -13,6 +13,26 @@ import streamlit as st
 
 
 # ====================================================================================================
+# Section: Memory Class
+# ====================================================================================================
+
+# Memory_Manager class to handle memory operations
+# She will be used to personalize the chatbot and store user preferences, chat history, etc.
+# Note: Testing JSON format for memory storage
+
+
+class Memory_Manager:   # Top 1 pritority
+    def __init__(self, path):
+        self.path = path
+        self.ticker_memory = {}
+        self.website_memory = {}
+    def add_ticker(self, ticker, data):
+        self.ticker_memory[ticker] = data
+
+
+
+
+# ====================================================================================================
 # Section: Technical Indicators
 # ====================================================================================================
 
@@ -212,55 +232,35 @@ from IPython.display import display
 ## == == == -- -- -- Helper Functions -- -- -- == == == ##
 
 
-def stock_data_side_by_side(multiple_dfs, period="1y"): # Frontend
+# IPython.display.display does not work with Streamlit.
+# Use Streamlit's st.dataframe, st.write, st.table, etc. for displaying data in Streamlit apps.
+def stock_data_side_by_side(multiple_dfs, period="1y"):  # Frontend (Streamlit compatible)
     if not isinstance(multiple_dfs, dict):
         raise ValueError("Input must be a dictionary of DataFrames.")
 
-    # Create a new DataFrame to hold the combined data
     combined_df = pd.DataFrame()
 
     for ticker, df in multiple_dfs.items():
-        # Ensure the index is datetime
         df.index = pd.to_datetime(df.index)
-        # Resample to daily frequency if needed
         df = df.resample('D').ffill()
-        # Rename columns to include ticker
         df.columns = [f"{col}_{ticker}" for col in df.columns]
-        # Combine with the main DataFrame
         combined_df = pd.concat([combined_df, df], axis=1)
 
-    # Display as a table (Jupyter will render nicely)
-    display(combined_df.head())
+    st.subheader("Stocks Side by Side")
+    st.dataframe(combined_df.head(20), use_container_width=True)
 
-def line_graphs_compare(multiple_dfs, field = "Close", title = None): # Frontend
-    plt.figure(figsize=(12, 6))
+def line_graphs_compare(multiple_dfs, field="Close", title=None):  # Frontend (Streamlit integrated)
+    st.subheader(title or f"{field} Comparison")
+    combined_df = pd.DataFrame()
     for ticker, df in multiple_dfs.items():
-        # Try to find the correct column for the field (e.g., "Close", "Close_AAPL", ("Close", "AAPL"))
-        col = None
-        # Check for MultiIndex columns
-        if isinstance(df.columns, pd.MultiIndex):
-            for c in df.columns:
-                if field.lower() in str(c[0]).lower():
-                    col = c
-                    break
+        if field in df.columns:
+            combined_df[ticker] = df[field]
         else:
-            # Single index columns
-            for c in df.columns:
-                if field.lower() in str(c).lower():
-                    col = c
-                    break
-        if col is not None:
-            plt.plot(df.index, df[col], label=ticker)
-        else:
-            print(f"Field '{field}' not found in {ticker} DataFrame columns: {df.columns}")
-
-    plt.xlabel("Date")
-    plt.ylabel(field)
-    plt.title(title or f"{field} Comparison")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+            st.warning(f"Field '{field}' not found in {ticker} DataFrame.")
+    st.dataframe(combined_df, use_container_width=True)
+    st.line_chart(combined_df)
+    if title:
+        st.caption(title)
 ## == == == -- -- -- Main Execute Functions -- -- -- == == == ##
 
 def compare_stocks(tickers, period="1y", visualize=True): # Frontend
@@ -282,7 +282,6 @@ import ta
 import pandas as pd
 import streamlit as st
 # Define 30 most used technical indicators using 'ta' library
-# Use .squeeze() for all df["col"] in indicator lambdas
 indicator_funcs = OrderedDict({
     # Trend indicators
     "MACD": lambda df: ta.trend.MACD(close=df["Close"].squeeze()).macd(),
@@ -399,82 +398,71 @@ indicator_plot_config = {
 }
 
 
-def visualize_indicator(data, indicator_name, title=None): # Frontend
-
+def visualize_indicator(data, indicator_name, title=None):  # Streamlit integrated
     config = indicator_plot_config.get(indicator_name, {"type": "line", "subplot": False})
     plot_type = config.get("type", "line")
     guides = config.get("guides", [])
     subplot = config.get("subplot", False)
     paired = config.get("paired", None)
 
-    plt.figure(figsize=(12, 6))
     for ticker, df in data.items():
         if indicator_name not in df.columns:
-            print(f"{indicator_name} not found in {ticker} data.")
+            st.warning(f"{indicator_name} not found in {ticker} data.")
             continue
-        x = df.index
-        y = df[indicator_name]
-        label = f"{ticker} {indicator_name}"
 
-        if plot_type == "line":
-            plt.plot(x, y, label=label)
-        elif plot_type == "histogram":
-            plt.bar(x, y, label=label, alpha=0.5)
-        elif plot_type == "scatter":
-            plt.scatter(x, y, label=label, s=10)
-        else:
-            plt.plot(x, y, label=label)
+        chart_df = pd.DataFrame(index=df.index)
+        chart_df[indicator_name] = df[indicator_name]
 
-        # Plot paired indicator if specified
+        # Add paired indicator if specified
         if paired and paired in df.columns:
-            plt.plot(x, df[paired], label=f"{ticker} {paired}", linestyle="--")
+            chart_df[paired] = df[paired]
 
-    for g in guides:
-        plt.axhline(g, color="gray", linestyle="--", linewidth=1)
-
-    plt.title(title or f"{indicator_name} Visualization")
-    plt.xlabel("Date")
-    plt.ylabel(indicator_name)
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-
-def calculate_ti(df, indicator): # Backend and Frontend
-
-    if isinstance(indicator, str):
-        indicators = [indicator]
-    else:
-        indicators = indicator
-
-    df = df.copy()
-    for name in indicators:
-        func = indicator_funcs.get(name)
-        if func is not None:
-            try:
-                df[name] = func(df)
-            except Exception as e:
-                print(f"Error calculating {name}: {e}")
+        st.subheader(f"{ticker} - {indicator_name} Visualization")
+        if plot_type == "line":
+            st.line_chart(chart_df)
+        elif plot_type == "histogram":
+            st.bar_chart(chart_df[indicator_name])
+        elif plot_type == "scatter":
+            st.scatter_chart(chart_df)
         else:
-            print(f"Indicator '{name}' not supported.")
-    return df
+            st.line_chart(chart_df)
+
+        # Show guides as reference lines (Streamlit doesn't support native hlines, so just info)
+        if guides:
+            st.info(f"Reference lines at: {guides}")
+
+        if title:
+            st.caption(title)
 
 
-def calculate_indicator(tickers, period="1y", indicators=None, visualize=True): # Frontend
+def calculate_indicator(tickers, period="1y", indicators=None, visualize=True):  # Streamlit integrated
     temp_data = extract_data_yf(tickers, Period=period)
     if indicators is None:
-        print("calculate_indicator: No indicators specified. Returning raw data.")
+        st.warning("No indicators specified. Returning raw data.")
         return temp_data
 
+    # Ensure indicators is a list
+    if isinstance(indicators, str):
+        indicators = [indicators]
+
     for ticker, df in temp_data.items():
-        print(f"\nCalculating indicators for {ticker}...")
-        df_with_indicators = calculate_ti(df, indicators)
-        temp_data[ticker] = df_with_indicators
-        print(df_with_indicators.tail())
+        st.write(f"Calculating indicators for **{ticker}**...")
+        df = df.copy()
+        for name in indicators:
+            func = indicator_funcs.get(name)
+            if func is not None:
+                try:
+                    df[name] = func(df)
+                except Exception as e:
+                    st.error(f"Error calculating {name} for {ticker}: {e}")
+            else:
+                st.warning(f"Indicator '{name}' not supported.")
+        temp_data[ticker] = df
+        st.dataframe(df.tail(), use_container_width=True)
 
     if visualize:
         for indicator_name in indicators:
+            st.subheader(f"Visualization for {indicator_name}")
             visualize_indicator(temp_data, indicator_name)
 
     return temp_data
@@ -503,7 +491,7 @@ def process_intent(intent, raw_query):
         if tickers:
             display_stock(tickers, period=period, visualize=True)
         else:
-            print("No valid stock tickers found in the query.")
+            st.warning("No valid stock tickers found in the query.")
 
     elif intent == "compare_stocks":
         period = extract_period(raw_query)
@@ -511,27 +499,27 @@ def process_intent(intent, raw_query):
         if tickers and len(tickers) > 1:
             compare_stocks(tickers, period=period, visualize=True)
         else:
-            print("Not enough valid stock tickers found for comparison.")
+            st.warning("Not enough valid stock tickers found for comparison.")
 
     elif intent == "calculate_indicator":
         period = extract_period(raw_query)
         tickers = extract_tickers(raw_query)
         indicators = extract_indicator(raw_query)
-        calculate_indicator(tickers, period, indicators, True)
-
-    elif intent == "predict_price": # Going to need to calculate the indicator first, preprocess the data, and then use a model to predict it.
-        # Having an idea to make a metadata on the best models for each indicator.
-        # Basically, first time? Run through all models, and then save the best one for each indicator
-        
-        if tickers:
-            indicator = extract_indicator(raw_query)
-            print(f"Predicting {indicator} for {', '.join(tickers)} over the period of {period}.")
-            # Placeholder for actual prediction logic
-            # This would typically involve fetching data and applying a prediction model
+        if tickers and indicators:
+            calculate_indicator(tickers, period, indicators, True)
         else:
-            print("No valid stock tickers found for indicator prediction.")
-    else: #fallback
-        print("Intent not recognized or not implemented. Please try again with a different query.")
+            st.warning("Could not extract tickers or indicators from your query.")
+
+    elif intent == "predict_price":
+        period = extract_period(raw_query)
+        tickers = extract_tickers(raw_query)
+        indicator = extract_indicator(raw_query)
+        if tickers and indicator:
+            st.info(f"Prediction functionality is not yet implemented. Would predict {indicator} for {', '.join(tickers)} over the period of {period}.")
+        else:
+            st.warning("No valid stock tickers or indicators found for prediction.")
+    else:  # fallback
+        st.warning("Intent not recognized or not implemented. Please try again with a different query.")
 
 # ====================================================================================================
 # Section: Main Execution
