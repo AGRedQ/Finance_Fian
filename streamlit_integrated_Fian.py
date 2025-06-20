@@ -26,8 +26,10 @@ class Memory_Manager:   # Top 1 pritority
         self.path = path
         self.ticker_memory = {}
         self.website_memory = {}
-    def add_ticker(self, ticker, data):
-        self.ticker_memory[ticker] = data
+    def add_ticker(self, ticker, total):
+        self.ticker_memory[ticker] = self.ticker_memory.get(ticker, 0) + total
+    def add_website(self, website, url,):
+        self.website_memory[website] = data
 
 
 
