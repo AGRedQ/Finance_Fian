@@ -10,6 +10,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import streamlit as st
+import os
+import sys
+# Import locals
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Bian.configs import indicators_list, indicator_plot_config
 
 
 # ====================================================================================================
@@ -21,15 +26,6 @@ import streamlit as st
 # Note: Testing JSON format for memory storage
 
 
-class Memory_Manager:   # Top 1 pritority
-    def __init__(self, path):
-        self.path = path
-        self.ticker_memory = {}
-        self.website_memory = {}
-    def add_ticker(self, ticker, total):
-        self.ticker_memory[ticker] = self.ticker_memory.get(ticker, 0) + total
-    def add_website(self, website, url,):
-        self.website_memory[website] = data
 
 
 
@@ -151,18 +147,9 @@ def extract_period(text): # Backend
     return "1y"
 
 def extract_indicator(text): # Backend
-    # Prompt engineering: add system instruction for better responses
-    indicators = [
-    "MACD", "MACD_signal", "MACD_diff", "ADX", "CCI", "Ichimoku_a", "Ichimoku_b",
-    "PSAR", "STC", "RSI", "Stoch", "Stoch_signal", "AwesomeOsc", "KAMA", "ROC", "TSI",
-    "UO", "ATR", "Bollinger_hband", "Bollinger_lband", "Bollinger_mavg", "Donchian_hband",
-    "Donchian_lband", "Keltner_hband", "Keltner_lband", "Donchian_width", "SMA_5", "EMA_5",
-    "WMA_5", "DEMA_5", "TEMA_5", "SMA_10", "EMA_10", "WMA_10", "DEMA_10", "TEMA_10", 
-    "SMA_20", "EMA_20", "WMA_20", "DEMA_20", "TEMA_20", "SMA_50", "EMA_50", "WMA_50", 
-    "DEMA_50", "TEMA_50", "SMA_100", "EMA_100", "WMA_100", "DEMA_100", "TEMA_100", 
-    "SMA_200", "EMA_200", "WMA_200", "DEMA_200", "TEMA_200"
-    ]
-    indicator_comma = ', '.join(indicators)
+    global indicators_list
+    # Prompt engineering: add system instruction for better responses 
+    indicator_comma = ', '.join(indicators_list)
 
     prompt = (
         "You are an indicator extraction parser. Given the user's input, return a list of technical indicators they want to calculate or predict.\n"
@@ -327,78 +314,6 @@ for win in [5, 10, 20, 50, 100, 200]:
     indicator_funcs[f"TEMA_{win}"] = lambda df, w=win: ta.trend.TEMAIndicator(close=df["Close"].squeeze(), window=w).tema_indicator()
 
 
-indicator_plot_config = {
-    # MACD Family
-    "MACD": {"type": "line", "guides": [0], "subplot": True, "paired": "MACD_signal"},
-    "MACD_signal": {"type": "line", "guides": [0], "subplot": True, "paired": "MACD"},
-    "MACD_diff": {"type": "histogram", "guides": [0], "subplot": True},
-
-    # Trend Strength
-    "ADX": {"type": "line", "guides": [20, 40], "subplot": True},
-    "CCI": {"type": "line", "guides": [-100, 100], "subplot": True},
-
-    # Ichimoku Cloud
-    "Ichimoku_a": {"type": "line", "subplot": False},
-    "Ichimoku_b": {"type": "line", "subplot": False},
-
-    # Price Overlay
-    "PSAR": {"type": "scatter", "subplot": False},
-
-    # Momentum Oscillators
-    "STC": {"type": "line", "guides": [25, 75], "subplot": True},
-    "RSI": {"type": "line", "guides": [30, 70], "subplot": True},
-    "Stoch": {"type": "line", "guides": [20, 80], "subplot": True, "paired": "Stoch_signal"},
-    "Stoch_signal": {"type": "line", "guides": [20, 80], "subplot": True, "paired": "Stoch"},
-    "AwesomeOsc": {"type": "histogram", "guides": [0], "subplot": True},
-    "KAMA": {"type": "line", "subplot": False},
-    "ROC": {"type": "line", "guides": [0], "subplot": True},
-    "TSI": {"type": "line", "guides": [0], "subplot": True},
-    "UO": {"type": "line", "guides": [30, 70], "subplot": True},
-
-    # Volatility
-    "ATR": {"type": "line", "subplot": True},
-    "Bollinger_hband": {"type": "line", "subplot": False},
-    "Bollinger_lband": {"type": "line", "subplot": False},
-    "Bollinger_mavg": {"type": "line", "subplot": False},
-    "Donchian_hband": {"type": "line", "subplot": False},
-    "Donchian_lband": {"type": "line", "subplot": False},
-    "Keltner_hband": {"type": "line", "subplot": False},
-    "Keltner_lband": {"type": "line", "subplot": False},
-    "Donchian_width": {"type": "line", "subplot": True},
-
-    # Moving Averages (Overlays)
-    "SMA_5": {"type": "line", "subplot": False},
-    "EMA_5": {"type": "line", "subplot": False},
-    "WMA_5": {"type": "line", "subplot": False},
-    "DEMA_5": {"type": "line", "subplot": False},
-    "TEMA_5": {"type": "line", "subplot": False},
-    "SMA_10": {"type": "line", "subplot": False},
-    "EMA_10": {"type": "line", "subplot": False},
-    "WMA_10": {"type": "line", "subplot": False},
-    "DEMA_10": {"type": "line", "subplot": False},
-    "TEMA_10": {"type": "line", "subplot": False},
-    "SMA_20": {"type": "line", "subplot": False},
-    "EMA_20": {"type": "line", "subplot": False},
-    "WMA_20": {"type": "line", "subplot": False},
-    "DEMA_20": {"type": "line", "subplot": False},
-    "TEMA_20": {"type": "line", "subplot": False},
-    "SMA_50": {"type": "line", "subplot": False},
-    "EMA_50": {"type": "line", "subplot": False},
-    "WMA_50": {"type": "line", "subplot": False},
-    "DEMA_50": {"type": "line", "subplot": False},
-    "TEMA_50": {"type": "line", "subplot": False},
-    "SMA_100": {"type": "line", "subplot": False},
-    "EMA_100": {"type": "line", "subplot": False},
-    "WMA_100": {"type": "line", "subplot": False},
-    "DEMA_100": {"type": "line", "subplot": False},
-    "TEMA_100": {"type": "line", "subplot": False},
-    "SMA_200": {"type": "line", "subplot": False},
-    "EMA_200": {"type": "line", "subplot": False},
-    "WMA_200": {"type": "line", "subplot": False},
-    "DEMA_200": {"type": "line", "subplot": False},
-    "TEMA_200": {"type": "line", "subplot": False},
-}
-
 
 def visualize_indicator(data, indicator_name, title=None):  # Streamlit integrated
     config = indicator_plot_config.get(indicator_name, {"type": "line", "subplot": False})
@@ -471,6 +386,17 @@ def calculate_indicator(tickers, period="1y", indicators=None, visualize=True): 
 
 
 # ====================================================================================================
+# Section: Funtions for predict_price
+# ====================================================================================================
+
+
+
+
+
+
+
+
+# ====================================================================================================
 # Section: Assembly of the Intent Processing Pipeline
 # ====================================================================================================
 
@@ -522,6 +448,9 @@ def process_intent(intent, raw_query):
             st.warning("No valid stock tickers or indicators found for prediction.")
     else:  # fallback
         st.warning("Intent not recognized or not implemented. Please try again with a different query.")
+
+
+
 
 # ====================================================================================================
 # Section: Main Execution
