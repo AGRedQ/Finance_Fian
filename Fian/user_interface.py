@@ -5,8 +5,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Bian.NLP.extractors import extract_tickers, extract_intent, extract_period
 
 
-raw_query = "What is the stock price of Apple Inc. for the last 5 years?"
-
 def process_query(query):
     # Extract intent
     intent = extract_intent(query)
@@ -23,4 +21,15 @@ def process_query(query):
         "tickers": tickers
     }
 
-print(process_query(raw_query))
+def chat():
+    print("Welcome to the finance assistant! Type 'exit' to quit.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == 'exit':
+            print("Goodbye!")
+            break
+        result = process_query(user_input)
+        print("Bot:", result)
+
+if __name__ == "__main__":
+    chat()
