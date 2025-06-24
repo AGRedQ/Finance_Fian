@@ -1,3 +1,6 @@
+import ta
+from collections import OrderedDict
+
 # list of supported indicators
 indicators_list = [
     "MACD", "MACD_signal", "MACD_diff", "ADX", "CCI", "Ichimoku_a", "Ichimoku_b",
@@ -82,4 +85,47 @@ indicator_plot_config = {
     "DEMA_200": {"type": "line", "subplot": False},
     "TEMA_200": {"type": "line", "subplot": False},
 }
+
+
+indicator_funcs = OrderedDict({
+    # Trend indicators
+    "MACD": lambda df: ta.trend.MACD(close=df["Close"].squeeze()).macd(),
+    "MACD_signal": lambda df: ta.trend.MACD(close=df["Close"].squeeze()).macd_signal(),
+    "MACD_diff": lambda df: ta.trend.MACD(close=df["Close"].squeeze()).macd_diff(),
+    "ADX": lambda df: ta.trend.ADXIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).adx(),
+    "CCI": lambda df: ta.trend.CCIIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).cci(),
+    "Ichimoku_a": lambda df: ta.trend.IchimokuIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze()).ichimoku_a(),
+    "Ichimoku_b": lambda df: ta.trend.IchimokuIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze()).ichimoku_b(),
+    "PSAR": lambda df: ta.trend.PSARIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).psar(),
+    "STC": lambda df: ta.trend.STCIndicator(close=df["Close"].squeeze()).stc(),
+
+    # Momentum indicators
+    "RSI": lambda df: ta.momentum.RSIIndicator(close=df["Close"].squeeze()).rsi(),
+    "Stoch": lambda df: ta.momentum.StochasticOscillator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).stoch(),
+    "Stoch_signal": lambda df: ta.momentum.StochasticOscillator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).stoch_signal(),
+    "AwesomeOsc": lambda df: ta.momentum.AwesomeOscillatorIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze()).awesome_oscillator(),
+    "KAMA": lambda df: ta.momentum.KAMAIndicator(close=df["Close"].squeeze()).kama(),
+    "ROC": lambda df: ta.momentum.ROCIndicator(close=df["Close"].squeeze()).roc(),
+    "TSI": lambda df: ta.momentum.TSIIndicator(close=df["Close"].squeeze()).tsi(),
+    "UO": lambda df: ta.momentum.UltimateOscillator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).ultimate_oscillator(),
+
+    # Volatility indicators
+    "ATR": lambda df: ta.volatility.AverageTrueRange(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).average_true_range(),
+    "Bollinger_hband": lambda df: ta.volatility.BollingerBands(close=df["Close"].squeeze()).bollinger_hband(),
+    "Bollinger_lband": lambda df: ta.volatility.BollingerBands(close=df["Close"].squeeze()).bollinger_lband(),
+    "Bollinger_mavg": lambda df: ta.volatility.BollingerBands(close=df["Close"].squeeze()).bollinger_mavg(),
+    "Donchian_hband": lambda df: ta.volatility.DonchianChannel(high=df["High"].squeeze(), low=df["Low"].squeeze()).donchian_channel_hband(),
+    "Donchian_lband": lambda df: ta.volatility.DonchianChannel(high=df["High"].squeeze(), low=df["Low"].squeeze()).donchian_channel_lband(),
+    "Keltner_hband": lambda df: ta.volatility.KeltnerChannel(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).keltner_channel_hband(),
+    "Keltner_lband": lambda df: ta.volatility.KeltnerChannel(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).keltner_channel_lband(),
+    "Donchian_width": lambda df: ta.volatility.DonchianChannel(high=df["High"].squeeze(), low=df["Low"].squeeze()).donchian_channel_width(),
+})
+
+# Add SMA with different window sizes to indicator_funcs
+for win in [5, 10, 20, 50, 100, 200]:
+    indicator_funcs[f"SMA_{win}"] = lambda df, w=win: ta.trend.SMAIndicator(close=df["Close"].squeeze(), window=w).sma_indicator()
+    indicator_funcs[f"EMA_{win}"] = lambda df, w=win: ta.trend.EMAIndicator(close=df["Close"].squeeze(), window=w).ema_indicator()
+    indicator_funcs[f"WMA_{win}"] = lambda df, w=win: ta.trend.WMAIndicator(close=df["Close"].squeeze(), window=w).wma()
+    indicator_funcs[f"DEMA_{win}"] = lambda df, w=win: ta.trend.DEMAIndicator(close=df["Close"].squeeze(), window=w).dema_indicator()
+    indicator_funcs[f"TEMA_{win}"] = lambda df, w=win: ta.trend.TEMAIndicator(close=df["Close"].squeeze(), window=w).tema_indicator()
 

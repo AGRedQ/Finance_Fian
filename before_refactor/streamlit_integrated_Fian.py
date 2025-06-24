@@ -221,8 +221,6 @@ from IPython.display import display
 ## == == == -- -- -- Helper Functions -- -- -- == == == ##
 
 
-# IPython.display.display does not work with Streamlit.
-# Use Streamlit's st.dataframe, st.write, st.table, etc. for displaying data in Streamlit apps.
 def stock_data_side_by_side(multiple_dfs, period="1y"):  # Frontend (Streamlit compatible)
     if not isinstance(multiple_dfs, dict):
         raise ValueError("Input must be a dictionary of DataFrames.")
