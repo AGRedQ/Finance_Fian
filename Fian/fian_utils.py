@@ -1,23 +1,6 @@
-
-import yfinance as yf
-import matplotlib.pyplot as plt
 import pandas as pd
-import os
-import sys
-# Local imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+import matplotlib.pyplot as plt
 from Bian.configs import indicator_plot_config
-
-
-def extract_data_yf(tickers, Period="1y"):  # Backend 
-    # Note: Remember to make a way to delete these files after use. Since they are only temporary files.
-    data = {}
-    for ticker in tickers:
-        df = yf.download(ticker, period=Period, interval="1d", auto_adjust=True, progress=False)
-        filename = f"temp_{ticker}_{Period}.csv"
-        df.to_csv(filename)
-        data[ticker] = df
-    return data
 
 def line_graph(df, field: str = "Close", title: str = None):  # Frontend
     plt.figure(figsize=(10, 5))
@@ -68,7 +51,7 @@ def line_graphs_compare(multiple_dfs, field="Close", title=None):
         print(title)
 
 
-def visualize_indicator(data, indicator_name, title=None):
+def visualize_indicator(data, indicator_name, title=None): # Frontend
     config = indicator_plot_config.get(indicator_name, {"type": "line", "subplot": False})
     plot_type = config.get("type", "line")
     guides = config.get("guides", [])

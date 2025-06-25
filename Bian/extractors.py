@@ -5,8 +5,8 @@ import warnings
 
 # Local imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Bian.NLP.util_functions import run_NER, extract_entities, to_yf_period, yfinance_search_company
-from Bian.NLP.resources import model
+from Bian.bian_utils import run_NER, extract_entities, to_yf_period, yfinance_search_company
+from Bian.resources import model
 
 
 def extract_tickers(text): # Backend
@@ -43,7 +43,6 @@ def extract_period(text): # Backend
     date_entities = extract_entities(entities, "DATE")
 
     if len(date_entities) >= 2: 
-        print("Multiple Date Ranges are not compatible YET. I will add later. Default: 1y") 
         return "1y"
 
     if len(date_entities) == 1:
