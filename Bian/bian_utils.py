@@ -12,6 +12,7 @@ from Bian.resources import nlp, stop_words, lemmatizer
 # import libs
 import yfinance as yf
 import re
+import json
 
 
 
@@ -77,6 +78,7 @@ def yfinance_search_company(company_names): # Backend
             results[name] = None
     # Return a list of ticker symbols (filtering out any None values)
     return [ticker for ticker in results.values() if ticker]
+
 
 
 
