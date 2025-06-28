@@ -26,15 +26,6 @@ def extract_data_yf(tickers, Period="1y"):  # Backend
         data[ticker] = df
     return data
 
-
-
-
-# ====================================================================================================
-# Section: Natual Language Understanding (NLU)
-# ====================================================================================================
-
-## == == == -- -- -- Helper Functions -- -- -- == == == ##
-
 def preprocess_query(text): # Backend
     text = text.lower()
     text = re.sub(r'[^\w\s]', '', text)
@@ -78,6 +69,14 @@ def yfinance_search_company(company_names): # Backend
             results[name] = None
     # Return a list of ticker symbols (filtering out any None values)
     return [ticker for ticker in results.values() if ticker]
+
+def load_resources():
+    from Bian.resources import model, nlp, stop_words, lemmatizer
+    model = model
+    nlp = nlp
+    stop_words = stop_words
+    lemmatizer = lemmatizer
+
 
 
 

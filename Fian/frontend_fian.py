@@ -7,9 +7,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Bian.backend_bian import BackendBian
 from Mian.memory_mian import MemoryMian
 
-# fian = FrontendFian() <3
-bian = BackendBian()
-mian = MemoryMian()
 
 class FrontendFian:
     def __init__(self):
@@ -51,6 +48,7 @@ class FrontendFian:
         self.visualize = st.sidebar.checkbox("Visualize", value=True)
         st.sidebar.write(f"Visualize is {'on' if self.visualize else 'off'}")
 
+
     def autotrain_setting_init(self):
         st.sidebar.title("Auto Train Model")
         st.sidebar.write("Enable or disable automatic model training.")
@@ -75,8 +73,7 @@ class FrontendFian:
 
     
     def streamlit_settings(self):
-        import streamlit as st
-
+        import streamlit as st  
         self.visualize_setting_init()
         self.autotrain_setting_init()
         self.tracking_ticker_init()
@@ -99,6 +96,13 @@ class FrontendFian:
         self.streamlit_settings()
         self.init_streamlit()
 
+fian = FrontendFian()
+bian = BackendBian()
+mian = MemoryMian()
+
 if __name__ == "__main__":
-    fian = FrontendFian()
+
+
+
+    bian.load_resources()
     fian.run()
