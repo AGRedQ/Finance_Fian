@@ -2,11 +2,14 @@ import spacy
 import google.generativeai as genai
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-import dotenv
+from dotenv import load_dotenv
+import os
 # === Gemini / Gemma-3-12b-it ===
 
-api_key =  dotenv.load_dotenv().get("GEMINI_API_KEY")
-generative_model = "gemma-3-12b-it"
+load_dotenv()
+
+api_key =  os.getenv("GEMINI_API_KEY")
+generative_model = "gemini-1.5-flash"
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel(generative_model)
 print(generative_model + " model loaded")

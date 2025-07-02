@@ -11,6 +11,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 class BackendBian:
     def __init__(self):
         pass
+    
+    def load_resources(self):
+        from Bian.bian_utils import load_resources
+        load_resources()
 
     def extract_tickers(self, text):
         from Bian.extractors import extract_tickers
