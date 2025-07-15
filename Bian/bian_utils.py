@@ -77,6 +77,17 @@ def load_resources():
     stop_words = stop_words
     lemmatizer = lemmatizer
 
+def check_valid_ticker(ticker): # Backend
+    """Check if a ticker is valid by trying to download data for it"""
+    try:
+        test_extract = yf.download(ticker, period="1d", auto_adjust=True, progress=False)
+        if not test_extract.empty:
+            return True  # Ticker is valid
+        else:
+            return False  # Ticker is invalid
+    except Exception as e:
+        return False  # Ticker is invalid
+
 
 
 

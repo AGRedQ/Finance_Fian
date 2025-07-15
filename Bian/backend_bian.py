@@ -61,7 +61,9 @@ class BackendBian:
             temp_data[ticker] = df
 
         return temp_data
-
+    def check_valid_ticker(self, ticker):
+        from Bian.bian_utils import check_valid_ticker
+        return check_valid_ticker(ticker)
 
 
 if __name__ == "__main__":

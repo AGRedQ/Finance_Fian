@@ -1,0 +1,32 @@
+{
+  "visualization_settings": {
+    "visualize": true,
+    "chart_type": "Line",
+    "chart_theme": "Light",
+    "show_volume": true,
+    "show_grid": true,
+    "show_indicators": true,
+    "show_legends": true,
+    "animation_enabled": false,
+    "decimal_places": 2,
+    "chart_width": 800,
+    "chart_height": 400
+  },
+  "auto_train_settings": {
+    "auto_train": false,
+    "training_frequency": "Daily",
+    "training_time": "09:00:00",
+    "retrain_threshold": 0.8,
+    "max_training_time": 30,
+    "training_data_period": "1 year",
+    "cpu_usage_limit": 70
+  },
+  "appearance_settings": {
+    "theme": "Auto",
+    "color_scheme": "Default",
+    "font_size": "Medium",
+    "sidebar_state": "Expanded",
+    "page_width": "Normal",
+    "show_tooltips": true
+  }
+}

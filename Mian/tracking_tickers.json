@@ -1,1 +1,26 @@
-["AAPL", "GOOGL", "TS"]
+{
+  "AAPL": {
+    "added_at": "2025-07-11T09:00:00",
+    "last_checked": "2025-07-11T18:00:00",
+    "last_price": 210.45,
+    "last_mfi": 65.2,
+    "last_sma_20": 205.30,
+    "history": []
+  },
+  "GOOGL": {
+    "added_at": "2025-07-10T12:00:00",
+    "last_checked": "2025-07-11T18:00:00",
+    "last_price": 2800.00,
+    "last_mfi": 72.1,
+    "last_sma_20": 2785.50,
+    "history": []
+  },
+  "MSFT": {
+    "added_at": "2025-07-09T15:30:00",
+    "last_checked": "2025-07-11T18:00:00",
+    "last_price": 420.00,
+    "last_mfi": 45.8,
+    "last_sma_20": 415.75,
+    "history": []
+  }
+}
