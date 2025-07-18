@@ -1,4 +1,3 @@
-
 import yfinance as yf
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,7 +6,7 @@ import sys
 # Local imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Bian.configs import indicator_plot_config
-from Bian.resources import nlp, stop_words, lemmatizer
+
 
 # import libs
 import yfinance as yf
@@ -16,13 +15,14 @@ import json
 
 
 
-def extract_data_yf(tickers, Period="1y"):  # Backend 
+def extract_data_yf(tickers, Period="1y",temp_file=False):  # Backend 
     # Note: Remember to make a way to delete these files after use. Since they are only temporary files.
     data = {}
     for ticker in tickers:
         df = yf.download(ticker, period=Period, interval="1d", auto_adjust=True, progress=False)
         filename = f"temp_{ticker}_{Period}.csv"
-        df.to_csv(filename)
+        if temp_file:
+            df.to_csv(filename)
         data[ticker] = df
     return data
 
@@ -71,11 +71,11 @@ def yfinance_search_company(company_names): # Backend
     return [ticker for ticker in results.values() if ticker]
 
 def load_resources():
-    from Bian.resources import model, nlp, stop_words, lemmatizer
+    from Bian.resources import model #,nlp, stop_words, lemmatizer
     model = model
-    nlp = nlp
-    stop_words = stop_words
-    lemmatizer = lemmatizer
+    # nlp = nlp
+    # stop_words = stop_words
+    # lemmatizer = lemmatizer
 
 def check_valid_ticker(ticker): # Backend
     """Check if a ticker is valid by trying to download data for it"""
@@ -87,8 +87,45 @@ def check_valid_ticker(ticker): # Backend
             return False  # Ticker is invalid
     except Exception as e:
         return False  # Ticker is invalid
+    
 
 
+def handle_input_type(input_text): # For Chatbot
+    if input_text[0] == "/":
+        return "command"
+    return "chat"
 
+def run_command(command): # For Chatbot
+    if command.startswith("/help"):
+        return (
+            "Available commands:\n"
+            "/help - Show this help message\n"
+            "/calculate <indicator> <symbol> - Calculate an indicator (e.g., /calculate RSI AAPL)\n"
+            "/compare <symbol1> <symbol2> - Compare two stocks (e.g., /compare AAPL MSFT)\n"
+            "/predict <symbol> - Predict stock price (e.g., /predict TSLA)\n"
+            "/display <symbol> - Display stock information (e.g., /display GOOGL)"
+        )
+    elif command.startswith("/calculate"):
+        return "Calculate command placeholder."
+    elif command.startswith("/compare"):
+        return "Compare command placeholder."
+    elif command.startswith("/predict"):
+        return "Predict command placeholder."
+    elif command.startswith("/display"):
+        return "Display command placeholder."
+    else:
+        return "Unknown command. Type /help for available commands."
+
+def run_query(query): # For Chatbot
+    """Run a query using the generative model with a system prompt for persona and instructions"""
+    from Bian.resources import model
+    system_prompt = (
+        "You are Trian, a lovely stock market assistant. "
+        "You provide basic knowledge about things like technical indicators and news. "
+        "If the user wants to use commands, kindly remind them to use /help for a list of available commands."
+    )
+    prompt = f"{system_prompt}\nUser query: {query}"
+    response = model.chat(prompt)
+    return response
 
 

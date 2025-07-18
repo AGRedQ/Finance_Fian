@@ -90,6 +90,9 @@ class MemoryMian:
         
         return updated_data
 
+    def get_total_tickers(self):
+        return len(load_tracking_tickers())
+
     # =======================
     # User's Setting
     # =======================
@@ -108,6 +111,4 @@ class MemoryMian:
 if __name__ == "__main__":
     # Test the functions
     mian = MemoryMian()
-    loaded_settings = mian.load_user_settings()
-    print(loaded_settings)
-    print(loaded_settings.get("", "not_set"))
+    print(len(load_tracking_tickers())) # should return 4

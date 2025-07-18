@@ -47,15 +47,14 @@ with tab1:
             st.subheader("Display Options")
             show_indicators = st.checkbox("Show Technical Indicators", value=True)
             show_legends = st.checkbox("Show Chart Legends", value=True)
-            animation_enabled = st.checkbox("Enable Chart Animations", value=False)
-            decimal_places = st.slider("Price Decimal Places", 0, 6, 2)
+ 
         
         st.subheader("Chart Dimensions")
         col1, col2 = st.columns(2)
         with col1:
-            chart_width = st.slider("Chart Width", 400, 1200, 800)
+            chart_width = st.slider("Chart Width", 6, 20, 12)
         with col2:
-            chart_height = st.slider("Chart Height", 300, 800, 400)
+            chart_height = st.slider("Chart Height", 3, 12, 6)
             
     else:
         st.warning("⚠️ Visualizations are disabled")
@@ -268,8 +267,8 @@ with col2:
             "show_legends": st.session_state.get("show_legends", True),
             "animation_enabled": st.session_state.get("animation_enabled", False),
             "decimal_places": st.session_state.get("decimal_places", 2),
-            "chart_width": st.session_state.get("chart_width", 800),
-            "chart_height": st.session_state.get("chart_height", 400),
+            "chart_width": st.session_state.get("chart_width", 12),
+            "chart_height": st.session_state.get("chart_height", 6),
             },
             "auto_train_settings": {
             "auto_train": st.session_state.get("auto_train", False),

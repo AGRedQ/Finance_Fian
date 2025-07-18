@@ -65,6 +65,21 @@ class BackendBian:
         from Bian.bian_utils import check_valid_ticker
         return check_valid_ticker(ticker)
 
+    def handle_input_type(self, input_text):
+        from Bian.bian_utils import handle_input_type
+        return handle_input_type(input_text)
+
+    def run_query(self, query):
+        from Bian.bian_utils import run_query
+        return run_query(query)
+    
+    def run_command(self, command):
+        from Bian.bian_utils import run_command
+        return run_command(command)
+    
+
+
+
 
 if __name__ == "__main__":
     bian = BackendBian()

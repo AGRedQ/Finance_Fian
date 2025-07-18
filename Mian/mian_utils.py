@@ -211,4 +211,4 @@ def get_ticker_data(ticker):
     
 if __name__ == "__main__":
     # Test the functions
-    print(load_user_settings())
+    print(len(get_ticker_list()))

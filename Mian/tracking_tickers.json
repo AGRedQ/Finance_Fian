@@ -4,23 +4,31 @@
     "last_checked": "2025-07-11T18:00:00",
     "last_price": 210.45,
     "last_mfi": 65.2,
-    "last_sma_20": 205.30,
+    "last_sma_20": 205.3,
     "history": []
   },
   "GOOGL": {
     "added_at": "2025-07-10T12:00:00",
     "last_checked": "2025-07-11T18:00:00",
-    "last_price": 2800.00,
+    "last_price": 2800.0,
     "last_mfi": 72.1,
-    "last_sma_20": 2785.50,
+    "last_sma_20": 2785.5,
     "history": []
   },
   "MSFT": {
     "added_at": "2025-07-09T15:30:00",
     "last_checked": "2025-07-11T18:00:00",
-    "last_price": 420.00,
+    "last_price": 420.0,
     "last_mfi": 45.8,
     "last_sma_20": 415.75,
+    "history": []
+  },
+  "AMZN": {
+    "added_at": "2025-07-17T15:59:47.935693",
+    "last_checked": "2025-07-17T15:59:47.935693",
+    "last_price": 223.19000244140625,
+    "last_mfi": 66.68,
+    "last_sma_20": 219.09,
     "history": []
   }
 }

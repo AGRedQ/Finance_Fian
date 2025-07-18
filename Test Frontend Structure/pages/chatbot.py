@@ -1,44 +1,49 @@
+# Page Init
 import streamlit as st
+import os
+import sys
 
+# Local imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Bian.backend_bian import BackendBian
+bian = BackendBian()
+
+# Note: Don't worry bois, gemini model is loaded in resources.py and imported via bian.load_resources
+# and loaded when the app starts
+
+# --- Bot Response Handler ---
+def get_bot_response(user_input):
+    input_type = bian.handle_input_type(user_input)
+    if input_type == "command":
+        return bian.run_command(user_input)
+    else:
+        return bian.run_query(user_input)
+
+# --- Streamlit Page Setup ---
 st.set_page_config(
     page_title="Chatbot - Finance Assistant",
     page_icon="💬",
     layout="wide"
 )
 
-# Initialize session state for messages
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
-def get_bot_response(user_input):
-    # Enhanced mock response with different types
-    user_input_lower = user_input.lower()
-    
-    if "price" in user_input_lower:
-        return f"📈 I can help you get price information! For '{user_input}', I would normally fetch real-time data and show you current prices with charts."
-    elif "rsi" in user_input_lower or "macd" in user_input_lower or "indicator" in user_input_lower:
-        return f"📊 Technical indicator analysis requested! For '{user_input}', I would calculate the indicators and provide visual analysis."
-    elif "predict" in user_input_lower:
-        return f"🔮 Price prediction requested! For '{user_input}', I would use LSTM models to forecast future prices."
-    elif "compare" in user_input_lower:
-        return f"⚖️ Stock comparison requested! For '{user_input}', I would show side-by-side analysis of multiple stocks."
-    else:
-        return f"🤖 I understand you're asking about '{user_input}'. This would normally be processed through our AI pipeline to provide detailed financial analysis!"
+if "message_count" not in st.session_state:
+    st.session_state.message_count = 0
 
 st.title("💬 Finance Assistant Chatbot")
-st.write("Ask me anything about stocks, indicators, predictions, or comparisons!")
+st.write("Chat with me about stocks, indicators, and financial analysis!")
+st.write("Start your sentence with a '/' to use commands, '/help' to start")
 
-# Example queries
 with st.expander("💡 Example Queries"):
-    st.write("Try asking me:")
-    st.code("Show me AAPL stock price for the last month")
-    st.code("Calculate RSI for GOOGL")
-    st.code("Predict TSLA price for next week")
-    st.code("Compare AAPL vs MSFT performance")
+    st.write("Try typing me:")
+    st.code("What is the MFI in stock market?")
+    st.code("/help")
+    st.code("/predict TSLA short") 
+    st.code("/compare AAPL MSFT")
 
-# Chat interface
+# --- Chat Interface ---
 with st.container():
-    # Chat input
     with st.form("chat_form", clear_on_submit=True):
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -51,31 +56,24 @@ with st.container():
             submitted = st.form_submit_button("Send 📤", use_container_width=True)
         
         if submitted and user_input:
-            # Add user message
             st.session_state.messages.append({
                 "role": "user", 
                 "content": user_input,
                 "timestamp": st.session_state.get('message_count', 0)
             })
-            
-            # Get bot response
             bot_response = get_bot_response(user_input)
             st.session_state.messages.append({
                 "role": "assistant", 
                 "content": bot_response,
                 "timestamp": st.session_state.get('message_count', 0) + 1
             })
-            
             st.session_state.message_count = st.session_state.get('message_count', 0) + 2
             st.rerun()
 
-# Display chat history
+# --- Display Chat History ---
 if st.session_state.messages:
     st.markdown("### 💭 Conversation")
-    
-    # Create a container for chat messages
     chat_container = st.container()
-    
     with chat_container:
         for message in st.session_state.messages:
             if message["role"] == "user":
@@ -90,29 +88,21 @@ if st.session_state.messages:
                     <strong>🤖 Assistant:</strong> {message["content"]}
                 </div>
                 """, unsafe_allow_html=True)
-    
-    # Chat controls
     col1, col2, col3 = st.columns([1, 1, 2])
     with col1:
         if st.button("🗑️ Clear Chat"):
             st.session_state.messages = []
             st.session_state.message_count = 0
             st.rerun()
-    
     with col2:
         if st.button("💾 Save Chat"):
             st.success("Chat saved! (Mock functionality)")
-    
     with col3:
         st.write(f"Messages: {len(st.session_state.messages)}")
-
 else:
     st.info("👋 Start a conversation by typing a message above!")
-    
-    # Quick start buttons
     st.markdown("### 🚀 Quick Start")
     col1, col2 = st.columns(2)
-    
     with col1:
         if st.button("📈 Ask about stock prices"):
             st.session_state.messages.append({
@@ -127,7 +117,6 @@ else:
                 "timestamp": 1
             })
             st.rerun()
-    
     with col2:
         if st.button("📊 Ask about indicators"):
             st.session_state.messages.append({

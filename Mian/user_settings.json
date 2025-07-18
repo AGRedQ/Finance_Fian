@@ -9,8 +9,8 @@
     "show_legends": true,
     "animation_enabled": false,
     "decimal_places": 2,
-    "chart_width": 800,
-    "chart_height": 400
+    "chart_width": 12,
+    "chart_height": 6
   },
   "auto_train_settings": {
     "auto_train": false,

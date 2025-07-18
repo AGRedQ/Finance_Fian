@@ -19,6 +19,7 @@ st.set_page_config(
 
 # Load resources
 
+
 with st.spinner("Loading resources..."):
     bian.load_resources()
 st.success("Resources loaded successfully!")
@@ -30,6 +31,7 @@ st.success("Tracked tickers loaded successfully!")
 
 # Load user settings
 loaded_user_settings = mian.load_user_settings()
+
 if loaded_user_settings == "load_user_settings_error":
     st.error("Error loading user settings. Please check the configuration file.")
 else:
@@ -56,7 +58,7 @@ st.markdown("### Welcome to your AI-powered financial analysis tool!")
 st.markdown("---")
 st.subheader("🚀 Quick Navigation")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.markdown("""
@@ -87,7 +89,15 @@ with col3:
     """)
     if st.button("Open Settings", key="nav_settings"):
         st.switch_page("pages/settings.py")
-
+with col4:
+    st.markdown("""
+    **⚙️ Ticker Search**
+    - Comprehensive information
+    - Visualizations
+    - Basic analysis
+    """)
+    if st.button("Open Ticker Search", key="nav_ticker"):
+        st.switch_page("pages/ticker_search.py")
 # Current status overview
 st.markdown("---")
 st.subheader("📊 Current Status")

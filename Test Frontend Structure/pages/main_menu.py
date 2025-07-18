@@ -1,4 +1,11 @@
 import streamlit as st
+import os
+import sys 
+
+# Local imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Mian.memory_mian import MemoryMian
+mian = MemoryMian()
 
 st.set_page_config(
     page_title="Main Menu - Finance Assistant",
@@ -16,13 +23,13 @@ with col1:
     st.metric(
         label="📈 Tracked Tickers",
         value=len(st.session_state.get("tracking_tickers", [])),
-        delta="Active"
+        delta="Tracked"
     )
 
 with col2:
     st.metric(
         label="🤖 Models Status",
-        value="3/3",
+        value=f"3/3 trained",
         delta="Online"
     )
 
@@ -73,10 +80,30 @@ if st.session_state.get("tracking_tickers"):
     
     for i, ticker in enumerate(st.session_state.tracking_tickers[:4]):  # Show max 4
         with ticker_cols[i % 4]:
-            st.info(f"**{ticker}**\n📈 $123.45\n📊 +2.3%")  # Mock data
+            ticker_data = mian.get_ticker_data(ticker)
+            if ticker_data:
+                indicators = mian.get_ticker_indicators(ticker)
+                current_price = indicators.get("price")
+                mfi = indicators.get("mfi")
+                sma_20 = indicators.get("sma_20")
+                
+                if current_price and mfi is not None and sma_20 is not None:
+                    # Display current indicators without comparisons
+                    price_vs_sma = "📈" if current_price > sma_20 else "📉"
+                    
+                    if mfi > 80:
+                        st.error(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n� MFI: {mfi:.1f}")
+                    elif mfi < 20:
+                        st.success(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
+                    else:
+                        st.info(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
+                else:
+                    st.warning(f"**{ticker}**\n❌ Data unavailable")
+            else:
+                st.info(f"**{ticker}**\n🔄 Loading...")
     
     if len(st.session_state.tracking_tickers) > 4:
-        st.write(f"... and {len(st.session_state.tracking_tickers) - 4} more")
+        st.caption(f"... and {len(st.session_state.tracking_tickers) - 4} more tickers")
 
 # Recent activity (mock)
 st.header("📋 Recent Activity")
