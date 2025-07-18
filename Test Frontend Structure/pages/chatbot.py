@@ -11,13 +11,6 @@ bian = BackendBian()
 # Note: Don't worry bois, gemini model is loaded in resources.py and imported via bian.load_resources
 # and loaded when the app starts
 
-# --- Bot Response Handler ---
-def get_bot_response(user_input):
-    input_type = bian.handle_input_type(user_input)
-    if input_type == "command":
-        return bian.run_command(user_input)
-    else:
-        return bian.run_query(user_input)
 
 # --- Streamlit Page Setup ---
 st.set_page_config(
@@ -61,7 +54,7 @@ with st.container():
                 "content": user_input,
                 "timestamp": st.session_state.get('message_count', 0)
             })
-            bot_response = get_bot_response(user_input)
+            bot_response = bian.process_query(user_input)
             st.session_state.messages.append({
                 "role": "assistant", 
                 "content": bot_response,
@@ -78,13 +71,13 @@ if st.session_state.messages:
         for message in st.session_state.messages:
             if message["role"] == "user":
                 st.markdown(f"""
-                <div style="background-color: #e3f2fd; padding: 10px; border-radius: 10px; margin: 5px 0; text-align: right;">
+                <div style="background-color: transparent; padding: 10px; border-radius: 10px; margin: 5px 0; text-align: right;">
                     <strong>🧑 You:</strong> {message["content"]}
                 </div>
                 """, unsafe_allow_html=True)
             else:
                 st.markdown(f"""
-                <div style="background-color: #f3e5f5; padding: 10px; border-radius: 10px; margin: 5px 0;">
+                <div style="background-color: transparent; padding: 10px; border-radius: 10px; margin: 5px 0;">
                     <strong>🤖 Assistant:</strong> {message["content"]}
                 </div>
                 """, unsafe_allow_html=True)
@@ -101,33 +94,3 @@ if st.session_state.messages:
         st.write(f"Messages: {len(st.session_state.messages)}")
 else:
     st.info("👋 Start a conversation by typing a message above!")
-    st.markdown("### 🚀 Quick Start")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📈 Ask about stock prices"):
-            st.session_state.messages.append({
-                "role": "user", 
-                "content": "Show me current stock prices for AAPL",
-                "timestamp": 0
-            })
-            bot_response = get_bot_response("Show me current stock prices for AAPL")
-            st.session_state.messages.append({
-                "role": "assistant", 
-                "content": bot_response,
-                "timestamp": 1
-            })
-            st.rerun()
-    with col2:
-        if st.button("📊 Ask about indicators"):
-            st.session_state.messages.append({
-                "role": "user", 
-                "content": "Calculate RSI for GOOGL",
-                "timestamp": 0
-            })
-            bot_response = get_bot_response("Calculate RSI for GOOGL")
-            st.session_state.messages.append({
-                "role": "assistant", 
-                "content": bot_response,
-                "timestamp": 1
-            })
-            st.rerun()

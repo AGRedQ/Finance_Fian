@@ -16,19 +16,19 @@ class BackendBian:
         from Bian.bian_utils import load_resources
         load_resources()
 
-    def extract_tickers(self, text):
+    def extract_tickers(self, text): # SpaCy # Experimental
         from Bian.extractors import extract_tickers
         return extract_tickers(text)
 
-    def extract_intent(self, text):
+    def extract_intent(self, text): # SpaCy # Experimental
         from Bian.extractors import extract_intent
         return extract_intent(text)
 
-    def extract_period(self, text):
+    def extract_period(self, text): # SpaCy # Experimental
         from Bian.extractors import extract_period
         return extract_period(text)
     
-    def extract_indicator(self, text):
+    def extract_indicator(self, text): # SpaCy # Experimental
         from Bian.extractors import extract_indicator
         return extract_indicator(text)
 
@@ -65,18 +65,10 @@ class BackendBian:
         from Bian.bian_utils import check_valid_ticker
         return check_valid_ticker(ticker)
 
-    def handle_input_type(self, input_text):
-        from Bian.bian_utils import handle_input_type
-        return handle_input_type(input_text)
+    def process_query(self, query):
+        from Bian.bian_utils import process_query
+        return process_query(query)
 
-    def run_query(self, query):
-        from Bian.bian_utils import run_query
-        return run_query(query)
-    
-    def run_command(self, command):
-        from Bian.bian_utils import run_command
-        return run_command(command)
-    
 
 
 

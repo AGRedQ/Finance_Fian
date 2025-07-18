@@ -111,4 +111,3 @@ class MemoryMian:
 if __name__ == "__main__":
     # Test the functions
     mian = MemoryMian()
-    print(len(load_tracking_tickers())) # should return 4

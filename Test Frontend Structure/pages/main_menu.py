@@ -119,4 +119,4 @@ for activity in activities[:3]:  # Show last 3
 
 # Navigation helper
 st.markdown("---")
-st.info("💡 **Navigation**: Use the sidebar to switch between different sections of the app!")
+st.info("💡 **Navigation**: Use the sidebar to switch between different sections of the app")
