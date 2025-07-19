@@ -47,21 +47,43 @@ with st.container():
             )
         with col2:
             submitted = st.form_submit_button("Send 📤", use_container_width=True)
+
+# Process input outside the form to avoid rerun issues
+if submitted and user_input:
+    # Add user message
+    st.session_state.messages.append({
+        "role": "user", 
+        "content": user_input,
+        "timestamp": st.session_state.get('message_count', 0)
+    })
+    
+    # Process the query and handle both text and potential charts
+    try:
+        # Import the needed functions directly
+        from Bian.bian_utils import handle_input_type, run_command, run_query
         
-        if submitted and user_input:
-            st.session_state.messages.append({
-                "role": "user", 
-                "content": user_input,
-                "timestamp": st.session_state.get('message_count', 0)
-            })
-            bot_response = bian.process_query(user_input)
-            st.session_state.messages.append({
-                "role": "assistant", 
-                "content": bot_response,
-                "timestamp": st.session_state.get('message_count', 0) + 1
-            })
-            st.session_state.message_count = st.session_state.get('message_count', 0) + 2
-            st.rerun()
+        input_type = handle_input_type(user_input)
+        
+        if input_type == "command":
+            # For commands, show immediate output
+            st.markdown("### 🤖 Processing command...")
+            bot_response = run_command(user_input)
+            st.success(bot_response)
+        else:
+            # For regular chat, use the query function
+            bot_response = run_query(user_input)
+        
+    except Exception as e:
+        bot_response = f"Sorry, I encountered an error: {str(e)}"
+        st.error(bot_response)
+    
+    # Add bot response
+    st.session_state.messages.append({
+        "role": "assistant", 
+        "content": bot_response,
+        "timestamp": st.session_state.get('message_count', 0) + 1
+    })
+    st.session_state.message_count = st.session_state.get('message_count', 0) + 2
 
 # --- Display Chat History ---
 if st.session_state.messages:

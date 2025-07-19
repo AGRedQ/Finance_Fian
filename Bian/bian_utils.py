@@ -92,6 +92,78 @@ def check_valid_ticker(ticker): # Backend
             return False  # Ticker is invalid
     except Exception as e:
         return False  # Ticker is invalid
+
+def format_currency(value, currency_code, ticker_symbol=None): # Backend
+    """Format currency based on the currency code"""
+    if value is None:
+        return "N/A"
+    
+    # Currency mapping
+    currency_map = {
+        'USD': ('$', 2),
+        'VND': ('₫', 0),  # Vietnamese Dong - no decimals
+        'EUR': ('€', 2),
+        'GBP': ('£', 2),
+        'JPY': ('¥', 0),  # Japanese Yen - no decimals
+        'KRW': ('₩', 0),  # Korean Won - no decimals
+        'CNY': ('¥', 2),  # Chinese Yuan
+        'INR': ('₹', 2),  # Indian Rupee
+        'CAD': ('C$', 2),
+        'AUD': ('A$', 2),
+        'HKD': ('HK$', 2),
+        'SGD': ('S$', 2),
+        'THB': ('฿', 2),
+    }
+    
+    # Get currency symbol and decimal places
+    symbol, decimals = currency_map.get(currency_code, ('', 2))
+    
+    # Format based on currency
+    if currency_code == 'VND':
+        # Vietnamese Dong - use thousands separators
+        return f"{symbol}{value:,.0f}"
+    elif currency_code in ['JPY', 'KRW']:
+        # No decimals for these currencies
+        return f"{symbol}{value:,.0f}"
+    else:
+        # Standard formatting with decimals
+        return f"{symbol}{value:,.{decimals}f}"
+
+def get_currency_info(info, ticker_symbol): # Backend
+    """Get currency information from ticker info"""
+    # Try to get currency from info
+    currency = info.get('currency', 'USD')
+    
+    # Fallback: detect from ticker symbol
+    if not currency or currency == 'USD':
+        if '.VN' in ticker_symbol:
+            currency = 'VND'
+        elif '.TO' in ticker_symbol or '.TRT' in ticker_symbol:
+            currency = 'CAD'
+        elif '.L' in ticker_symbol:
+            currency = 'GBP'
+        elif '.T' in ticker_symbol:
+            currency = 'JPY'
+        elif '.KS' in ticker_symbol:
+            currency = 'KRW'
+        elif '.HK' in ticker_symbol:
+            currency = 'HKD'
+        elif '.SI' in ticker_symbol:
+            currency = 'SGD'
+        elif '.BK' in ticker_symbol:
+            currency = 'THB'
+        # Add more ticker suffix mappings as needed
+    
+    return currency
+
+def get_currency_symbol(currency_code): # Backend
+    """Get just the currency symbol for chart labels"""
+    currency_symbols = {
+        'USD': '$', 'VND': '₫', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
+        'KRW': '₩', 'CNY': '¥', 'INR': '₹', 'CAD': 'C$', 'AUD': 'A$',
+        'HKD': 'HK$', 'SGD': 'S$', 'THB': '฿'
+    }
+    return currency_symbols.get(currency_code, currency_code)
     
 def handle_input_type(input_text): # For Chatbot
     if input_text[0] == "/":
@@ -104,9 +176,9 @@ def run_command(command): # For Chatbot
             "Available commands:<br>"
             "/help - Show this help message<br>"
             "/calculate <indicator> <ticker> - Calculate an indicator (e.g., /calculate RSI AAPL)<br>"
-            "/compare <ticker1> <ticker2> - Compare two stocks (e.g., /compare AAPL MSFT)<br>"
+            "/compare <ticker1> <ticker2> - Compare two stocks side by side (e.g., /compare AAPL MSFT)<br>"
             "/predict <ticker> - Predict stock price (e.g., /predict TSLA)<br>"
-            "/display <ticker> - Display stock information (e.g., /display GOOGL)<br>"
+            "/display <ticker> - Display candlestick chart, volume, and company info (e.g., /display GOOGL)<br>"
         )
     elif command.startswith("/compare"):
         try:
@@ -115,24 +187,49 @@ def run_command(command): # For Chatbot
             if len(parts) < 3:
                 return "Usage: /compare <ticker1> <ticker2>"
             ticker1, ticker2 = parts[1].upper(), parts[2].upper()
-            # Fetch data
-            data = bian.extract_data_yf([ticker1, ticker2], Period="6mo")
-            if ticker1 not in data or ticker2 not in data:
+            
+            # Validate tickers
+            if not check_valid_ticker(ticker1):
+                return f"Invalid ticker: {ticker1}"
+            if not check_valid_ticker(ticker2):
+                return f"Invalid ticker: {ticker2}"
+            
+            # Fetch data using the standalone function
+            data = extract_data_yf([ticker1, ticker2], Period="6mo")
+            if ticker1 not in data or ticker2 not in data or data[ticker1].empty or data[ticker2].empty:
                 return f"Could not fetch data for {ticker1} or {ticker2}."
-            # Use default chart size or get from session state
-            import streamlit as st
-            chart_width = st.session_state.get("chart_width", 12)
-            chart_height = st.session_state.get("chart_height", 6)
-            fian.compare_stocks(data[ticker1], data[ticker2], chart_width, chart_height, title=f"{ticker1} vs {ticker2} Close Price")
-            return f"Comparing {ticker1} and {ticker2}..."
+            
+            # Use Fian for visualization
+            fian.compare_stocks(data[ticker1], data[ticker2], title=f"{ticker1} vs {ticker2} Comparison")
+            return f"📊 Comparison chart displayed for {ticker1} vs {ticker2}"
         except Exception as e:
-            return f"Error comparing stocks: {e}"
+            return f"Error comparing stocks: {str(e)}"
     elif command.startswith("/calculate"):
         return "Calculate command placeholder."
     elif command.startswith("/predict"):
         return "Predict command placeholder."
     elif command.startswith("/display"):
-        return "Display command placeholder."
+        try:
+            # Parse ticker
+            parts = command.strip().split()
+            if len(parts) < 2:
+                return "Usage: /display <ticker>"
+            ticker = parts[1].upper()
+            
+            # Validate ticker
+            if not check_valid_ticker(ticker):
+                return f"Invalid ticker: {ticker}"
+            
+            # Fetch data
+            data = extract_data_yf([ticker], Period="1y")
+            if ticker not in data or data[ticker].empty:
+                return f"Could not fetch data for {ticker}."
+            
+            # Use Fian for visualization
+            fian.display_stock(data[ticker], ticker)
+            return f"📈 Stock information and chart displayed for {ticker}"
+        except Exception as e:
+            return f"Error displaying stock: {str(e)}"
     else:
         return "Unknown command. Type /help for available commands."
 

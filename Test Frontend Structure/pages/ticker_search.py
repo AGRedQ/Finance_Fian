@@ -69,6 +69,9 @@ if ticker_input and (search_button or ticker_input):
             # Get technical indicators
             indicators = mian.get_ticker_indicators(ticker)
             
+            # Get currency information
+            currency = bian.get_currency_info(info, ticker)
+            
             # Create main layout
             st.header(f"📊 {ticker} - {info.get('longName', 'N/A')}")
             
@@ -79,7 +82,7 @@ if ticker_input and (search_button or ticker_input):
                 current_price = indicators.get('price', 0)
                 st.metric(
                     label="💰 Current Price",
-                    value=f"${current_price:.2f}" if current_price else "N/A",
+                    value=bian.format_currency(current_price, currency) if current_price else "N/A",
                     delta=f"{((current_price - hist_30d['Close'].iloc[0]) / hist_30d['Close'].iloc[0] * 100):.2f}%" if current_price and len(hist_30d) > 0 else None
                 )
             
@@ -106,7 +109,7 @@ if ticker_input and (search_button or ticker_input):
                 
                 st.metric(
                     label="📊 SMA 20",
-                    value=f"${sma_20:.2f}" if sma_20 else "N/A",
+                    value=bian.format_currency(sma_20, currency) if sma_20 else "N/A",
                     delta=sma_trend,
                     help="20-day Simple Moving Average"
                 )
@@ -158,10 +161,10 @@ if ticker_input and (search_button or ticker_input):
                     percentage_diff = (difference / sma_20) * 100
                     
                     if current_price > sma_20:
-                        st.success(f"📈 **Above SMA 20** - ${difference:.2f} ({percentage_diff:.2f}%)")
+                        st.success(f"📈 **Above SMA 20** - {bian.format_currency(difference, currency)} ({percentage_diff:.2f}%)")
                         st.markdown("Price is above the 20-day average, indicating upward momentum.")
                     else:
-                        st.error(f"📉 **Below SMA 20** - ${abs(difference):.2f} ({abs(percentage_diff):.2f}%)")
+                        st.error(f"📉 **Below SMA 20** - {bian.format_currency(abs(difference), currency)} ({abs(percentage_diff):.2f}%)")
                         st.markdown("Price is below the 20-day average, indicating downward momentum.")
                 else:
                     st.warning("SMA 20 data not available")
@@ -233,7 +236,7 @@ if ticker_input and (search_button or ticker_input):
                 
                 # Format the chart
                 ax.set_title(f"{ticker} Price Chart ({chart_period})", fontsize=16, fontweight='bold')
-                ax.set_ylabel("Price ($)", fontsize=12)
+                ax.set_ylabel(f"Price ({bian.get_currency_symbol(currency)})", fontsize=12)
                 ax.set_xlabel("Date", fontsize=12)
                 ax.legend()
                 ax.grid(True, alpha=0.3)

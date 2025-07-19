@@ -65,6 +65,18 @@ class BackendBian:
         from Bian.bian_utils import check_valid_ticker
         return check_valid_ticker(ticker)
 
+    def format_currency(self, value, currency_code, ticker_symbol=None):
+        from Bian.bian_utils import format_currency
+        return format_currency(value, currency_code, ticker_symbol)
+
+    def get_currency_info(self, info, ticker_symbol):
+        from Bian.bian_utils import get_currency_info
+        return get_currency_info(info, ticker_symbol)
+
+    def get_currency_symbol(self, currency_code):
+        from Bian.bian_utils import get_currency_symbol
+        return get_currency_symbol(currency_code)
+
     def process_query(self, query):
         from Bian.bian_utils import process_query
         return process_query(query)
