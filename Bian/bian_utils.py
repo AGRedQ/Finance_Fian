@@ -20,15 +20,43 @@ import json
 
 
 
-def extract_data_yf(tickers, Period="1y",temp_file=False):  # Backend 
+def extract_data_yf(tickers, Period="1y", temp_file=False):  # Backend 
     # Note: Remember to make a way to delete these files after use. Since they are only temporary files.
     data = {}
     for ticker in tickers:
-        df = yf.download(ticker, period=Period, interval="1d", auto_adjust=True, progress=False)
-        filename = f"temp_{ticker}_{Period}.csv"
-        if temp_file:
-            df.to_csv(filename)
-        data[ticker] = df
+        try:
+            # Download data with progress=False to avoid output issues
+            df = yf.download(ticker, period=Period, interval="1d", auto_adjust=True, progress=False)
+            
+            # Handle multi-level columns if they exist
+            if isinstance(df.columns, pd.MultiIndex):
+                # Flatten multi-level columns - take the first level
+                df.columns = df.columns.get_level_values(0)
+            
+            # Ensure we have the required columns
+            required_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            
+            if missing_columns:
+                print(f"Warning: Missing columns {missing_columns} for {ticker}")
+                continue
+            
+            # Remove any NaN rows
+            df = df.dropna()
+            
+            if df.empty:
+                print(f"Warning: No valid data for {ticker}")
+                continue
+                
+            filename = f"temp_{ticker}_{Period}.csv"
+            if temp_file:
+                df.to_csv(filename)
+            data[ticker] = df
+            
+        except Exception as e:
+            print(f"Error downloading data for {ticker}: {str(e)}")
+            continue
+            
     return data
 
 def preprocess_query(text): # SpaCy # Experimental
@@ -86,16 +114,29 @@ def check_valid_ticker(ticker): # Backend
     """Check if a ticker is valid by trying to download data for it"""
     try:
         test_extract = yf.download(ticker, period="1d", auto_adjust=True, progress=False)
-        if not test_extract.empty:
+        
+        # Handle multi-level columns if they exist
+        if isinstance(test_extract.columns, pd.MultiIndex):
+            test_extract.columns = test_extract.columns.get_level_values(0)
+        
+        # Check if we have valid data and required columns
+        if not test_extract.empty and 'Close' in test_extract.columns:
             return True  # Ticker is valid
         else:
             return False  # Ticker is invalid
     except Exception as e:
+        print(f"Error validating ticker {ticker}: {str(e)}")
         return False  # Ticker is invalid
 
 def format_currency(value, currency_code, ticker_symbol=None): # Backend
     """Format currency based on the currency code"""
-    if value is None:
+    if value is None or pd.isna(value):
+        return "N/A"
+    
+    # Convert to float if it's a pandas Series or other numeric type
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
         return "N/A"
     
     # Currency mapping
@@ -171,7 +212,12 @@ def handle_input_type(input_text): # For Chatbot
     return "chat"
 
 def run_command(command): # For Chatbot
+    # Import MemoryMian for activity logging
+    from Mian.memory_mian import MemoryMian
+    mian = MemoryMian()
+    
     if command.startswith("/help"):
+        mian.log_activity("❓ Viewed help commands")
         return (
             "Available commands:<br>"
             "/help - Show this help message<br>"
@@ -199,14 +245,19 @@ def run_command(command): # For Chatbot
             if ticker1 not in data or ticker2 not in data or data[ticker1].empty or data[ticker2].empty:
                 return f"Could not fetch data for {ticker1} or {ticker2}."
             
+            # Log the activity
+            mian.log_activity(f"📊 Compared {ticker1} vs {ticker2}")
+            
             # Use Fian for visualization
             fian.compare_stocks(data[ticker1], data[ticker2], title=f"{ticker1} vs {ticker2} Comparison")
             return f"📊 Comparison chart displayed for {ticker1} vs {ticker2}"
         except Exception as e:
             return f"Error comparing stocks: {str(e)}"
     elif command.startswith("/calculate"):
+        mian.log_activity("🧮 Used calculate command")
         return "Calculate command placeholder."
     elif command.startswith("/predict"):
+        mian.log_activity("🔮 Used predict command")
         return "Predict command placeholder."
     elif command.startswith("/display"):
         try:
@@ -220,15 +271,26 @@ def run_command(command): # For Chatbot
             if not check_valid_ticker(ticker):
                 return f"Invalid ticker: {ticker}"
             
-            # Fetch data
+            # Fetch data with enhanced error handling
             data = extract_data_yf([ticker], Period="1y")
             if ticker not in data or data[ticker].empty:
                 return f"Could not fetch data for {ticker}."
             
+            # Ensure data is properly formatted
+            ticker_data = data[ticker]
+            if ticker_data.empty:
+                return f"No data available for {ticker}"
+            
+            # Log the activity
+            mian.log_activity(f"📈 Displayed detailed analysis for {ticker}")
+            
             # Use Fian for visualization
-            fian.display_stock(data[ticker], ticker)
+            fian.display_stock(ticker_data, ticker)
             return f"📈 Stock information and chart displayed for {ticker}"
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Full error traceback: {error_details}")
             return f"Error displaying stock: {str(e)}"
     else:
         return "Unknown command. Type /help for available commands."
@@ -236,6 +298,12 @@ def run_command(command): # For Chatbot
 def run_query(query): # For Chatbot
     """Run a query using the generative model with a system prompt for persona and instructions"""
     from Bian.resources import model
+    from Mian.memory_mian import MemoryMian
+    
+    # Log the chat activity
+    mian = MemoryMian()
+    mian.log_activity("💬 Asked Trian a question")
+    
     system_prompt = (
         "You are Trian, a lovely stock market assistant. "
         "You provide basic knowledge about things like technical indicators and news. "

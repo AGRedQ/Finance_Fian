@@ -103,6 +103,80 @@ class MemoryMian:
         settings = save_user_settings(settings)
         return settings
 
+    # =======================
+    # Activity Tracking
+    # =======================
+    def log_activity(self, activity_message):
+        """Log a new activity with timestamp"""
+        from datetime import datetime
+        
+        activity_file = os.path.join(os.path.dirname(__file__), "user_activities.json")
+        
+        # Load existing activities
+        try:
+            with open(activity_file, 'r') as f:
+                activities = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            activities = []
+        
+        # Add new activity with timestamp
+        new_activity = {
+            "message": activity_message,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "date": datetime.now().strftime("%Y-%m-%d")
+        }
+        
+        activities.insert(0, new_activity)  # Add to beginning
+        
+        # Keep only last 50 activities
+        activities = activities[:50]
+        
+        # Save back to file
+        try:
+            with open(activity_file, 'w') as f:
+                json.dump(activities, f, indent=2)
+        except Exception as e:
+            print(f"Error saving activity: {e}")
+        
+        return activities
+    
+    def get_recent_activities(self, limit=10):
+        """Get recent activities"""
+        from datetime import datetime
+        
+        activity_file = os.path.join(os.path.dirname(__file__), "user_activities.json")
+        
+        try:
+            with open(activity_file, 'r') as f:
+                activities = json.load(f)
+            
+            # Return limited activities with formatted timestamps
+            recent = activities[:limit]
+            for activity in recent:
+                # Format timestamp for display
+                try:
+                    dt = datetime.strptime(activity["timestamp"], "%Y-%m-%d %H:%M:%S")
+                    activity["display_time"] = dt.strftime("%I:%M %p")
+                    activity["display_date"] = dt.strftime("%b %d")
+                except:
+                    activity["display_time"] = "Unknown"
+                    activity["display_date"] = "Unknown"
+            
+            return recent
+        except (FileNotFoundError, json.JSONDecodeError):
+            return []
+    
+    def clear_activities(self):
+        """Clear all activities"""
+        activity_file = os.path.join(os.path.dirname(__file__), "user_activities.json")
+        try:
+            with open(activity_file, 'w') as f:
+                json.dump([], f)
+            return True
+        except Exception as e:
+            print(f"Error clearing activities: {e}")
+            return False
+
 
 
 

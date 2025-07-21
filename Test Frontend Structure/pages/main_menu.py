@@ -69,7 +69,10 @@ with col3:
                         st.session_state.tracking_tickers = []
                     if ticker.upper() not in st.session_state.tracking_tickers:
                         st.session_state.tracking_tickers.append(ticker.upper())
+                        # Log the activity
+                        mian.log_activity(f"📈 Added {ticker.upper()} to tracking list")
                         st.success(f"Added {ticker.upper()}!")
+                        st.rerun()  # Refresh to show new activity
                     else:
                         st.warning(f"{ticker.upper()} already tracked!")
 
@@ -105,17 +108,31 @@ if st.session_state.get("tracking_tickers"):
     if len(st.session_state.tracking_tickers) > 4:
         st.caption(f"... and {len(st.session_state.tracking_tickers) - 4} more tickers")
 
-# Recent activity (mock)
+# Recent activity (real-time)
 st.header("📋 Recent Activity")
-activities = [
-    "Added AAPL to tracking list",
-    "Trained price prediction model",
-    "Generated RSI analysis for GOOGL",
-    "Updated visualization settings"
-]
 
-for activity in activities[:3]:  # Show last 3
-    st.write(f"• {activity}")
+# Get real activities from MemoryMian
+recent_activities = mian.get_recent_activities(limit=5)
+
+if recent_activities:
+    # Display maximum 5 activities
+    for activity in recent_activities[:5]:  # Show maximum 5
+        # Format the activity display
+        time_info = f"{activity.get('display_date', 'Unknown')} at {activity.get('display_time', 'Unknown')}"
+        st.write(f"• {activity['message']}")
+        st.caption(f"  ⏰ {time_info}")
+    
+    # Add clear activities button (for maintenance)
+    if st.button("🗑️ Clear Activity History", type="secondary"):
+        if mian.clear_activities():
+            st.success("Activity history cleared!")
+            st.rerun()
+        else:
+            st.error("Failed to clear activities")
+else:
+    st.info("No recent activities. Start using the app to see your activity history!")
+    # Log the first visit
+    mian.log_activity("🏠 Visited Finance Assistant Dashboard")
 
 # Navigation helper
 st.markdown("---")

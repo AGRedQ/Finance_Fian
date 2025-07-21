@@ -48,7 +48,14 @@ else:
 
 # Initialize tracking tickers in session state
 if "tracking_tickers" not in st.session_state:
-    st.session_state.tracking_tickers = list(tracking_tickers_data.keys())
+    # Handle both list and dict formats, and empty cases
+    if isinstance(tracking_tickers_data, list):
+        st.session_state.tracking_tickers = tracking_tickers_data
+    elif isinstance(tracking_tickers_data, dict):
+        st.session_state.tracking_tickers = list(tracking_tickers_data.keys())
+    else:
+        # Handle empty or None case
+        st.session_state.tracking_tickers = []
 
 # Main page content - Landing/Home page
 st.title("💰 Finance Assistant")

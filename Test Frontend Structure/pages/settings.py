@@ -18,7 +18,7 @@ st.set_page_config(
 st.title("⚙️ Settings")
 
 # Create tabs for different setting categories
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Visualization", "🤖 Auto Train", "📈 Tickers", "🎨 Appearance"])
+tab1, tab2, tab3 = st.tabs(["📊 Visualization", "📋 History", "📈 Tickers"])
 
 # Visualization Settings Tab
 with tab1:
@@ -38,23 +38,22 @@ with tab1:
         
         with col1:
             st.subheader("Chart Settings")
-            chart_type = st.selectbox("Default Chart Type", ["Line", "Candlestick", "Bar", "Area"])
-            chart_theme = st.selectbox("Chart Theme", ["Light", "Dark", "Auto"])
             show_volume = st.checkbox("Show Volume", value=True)
             show_grid = st.checkbox("Show Grid Lines", value=True)
+            show_indicators = st.checkbox("Show Technical Indicators", value=True)
         
         with col2:
             st.subheader("Display Options")
-            show_indicators = st.checkbox("Show Technical Indicators", value=True)
             show_legends = st.checkbox("Show Chart Legends", value=True)
- 
+            animation_enabled = st.checkbox("Enable Chart Animations", value=False)
+            decimal_places = st.slider("Price Decimal Places", 0, 6, 2)
         
         st.subheader("Chart Dimensions")
         col1, col2 = st.columns(2)
         with col1:
-            chart_width = st.slider("Chart Width", 6, 20, 12)
+            chart_width = st.slider("Chart Width", 400, 1200, 800)
         with col2:
-            chart_height = st.slider("Chart Height", 3, 12, 6)
+            chart_height = st.slider("Chart Height", 300, 800, 400)
             
     else:
         st.warning("⚠️ Visualizations are disabled")
@@ -142,24 +141,15 @@ with tab3:
         new_ticker = st.text_input("Add New Ticker", placeholder="e.g., AAPL, GOOGL, MSFT")
     with col2:
         if st.button("➕ Add", use_container_width=True):
-            if new_ticker:
-                if new_ticker.upper() not in st.session_state.get('tracking_tickers', []):
-                    # Add to memory manager
-                    result = mian.add_tracking_ticker(new_ticker.upper())
-                    if isinstance(result, str) and "Invalid" in result:
-                        st.error(result)
-                    else:
-                        # Add to session state
-                        if 'tracking_tickers' not in st.session_state:
-                            st.session_state.tracking_tickers = []
-                        st.session_state.tracking_tickers.append(new_ticker.upper())
-                        st.success(f"Added {new_ticker.upper()}!")
-                        st.rerun()
-                else:
-                    st.warning(f"{new_ticker.upper()} already tracked!")
+            if new_ticker and new_ticker.upper() not in st.session_state.tracking_tickers:
+                st.session_state.tracking_tickers.append(new_ticker.upper())
+                st.success(f"Added {new_ticker.upper()}!")
+                st.rerun()
+            elif new_ticker.upper() in st.session_state.tracking_tickers:
+                st.warning(f"{new_ticker.upper()} already tracked!")
     
     # Display and manage current tickers
-    if st.session_state.get('tracking_tickers'):
+    if st.session_state.tracking_tickers:
         st.subheader(f"Current Tickers ({len(st.session_state.tracking_tickers)})")
         
         # Create columns for ticker display
@@ -168,38 +158,14 @@ with tab3:
             cols = st.columns(cols_per_row)
             for j, ticker in enumerate(st.session_state.tracking_tickers[i:i+cols_per_row]):
                 with cols[j]:
-                    ticker_data = mian.get_ticker_data(ticker)
-                    if ticker_data:
-                        indicators = mian.get_ticker_indicators(ticker)
-                        current_price = indicators.get("price")
-                        mfi = indicators.get("mfi")
-                        sma_20 = indicators.get("sma_20")
-                        
-                        st.markdown(f"**{ticker}**")
-                        if current_price:
-                            st.caption(f"💰 ${current_price:.2f}")
-                            if sma_20:
-                                trend = "📈" if current_price > sma_20 else "📉"
-                                st.caption(f"{trend} SMA20: ${sma_20:.2f}")
-                            if mfi is not None:
-                                if mfi > 80:
-                                    st.caption(f"� MFI: {mfi:.1f} (Overbought)")
-                                elif mfi < 20:
-                                    st.caption(f"🟢 MFI: {mfi:.1f} (Oversold)")
-                                else:
-                                    st.caption(f"🔵 MFI: {mfi:.1f}")
-                        else:
-                            st.caption("❌ Data unavailable")
-                    else:
-                        st.markdown(f"**{ticker}**")
-                        st.caption("🔄 Loading...")
-                    
-                    if st.button("❌", key=f"remove_{ticker}_{i}_{j}"):
-                        # Remove from memory manager
-                        mian.remove_tracking_ticker(ticker)
-                        # Remove from session state
-                        st.session_state.tracking_tickers.remove(ticker)
-                        st.rerun()
+                    st.markdown(f"**{ticker}**")
+                    col1, col2 = st.columns([1, 1])
+                    with col1:
+                        st.caption("📊 Active")
+                    with col2:
+                        if st.button("❌", key=f"remove_{ticker}_{i}_{j}"):
+                            st.session_state.tracking_tickers.remove(ticker)
+                            st.rerun()
         
         # Bulk actions
         st.markdown("---")
@@ -232,24 +198,6 @@ with tab3:
                     st.success(f"{ticker} added!")
                     st.rerun()
 
-# Appearance Settings Tab
-with tab4:
-    st.header("🎨 Appearance Settings")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.subheader("Theme")
-        theme = st.selectbox("App Theme", ["Auto", "Light", "Dark"])
-        color_scheme = st.selectbox("Color Scheme", ["Default", "Blue", "Green", "Purple"])
-        font_size = st.selectbox("Font Size", ["Small", "Medium", "Large"])
-    
-    with col2:
-        st.subheader("Layout")
-        sidebar_state = st.selectbox("Default Sidebar State", ["Expanded", "Collapsed"])
-        page_width = st.selectbox("Page Width", ["Normal", "Wide", "Centered"])
-        show_tooltips = st.checkbox("Show Help Tooltips", value=True)
-
 # Save settings button
 st.markdown("---")
 col1, col2, col3 = st.columns([1, 1, 1])
@@ -259,16 +207,14 @@ with col2:
         user_settings = {
             "visualization_settings": {
             "visualize": st.session_state.get("visualize", True),
-            "chart_type": st.session_state.get("chart_type", "Line"),
-            "chart_theme": st.session_state.get("chart_theme", "Light"),
             "show_volume": st.session_state.get("show_volume", True),
             "show_grid": st.session_state.get("show_grid", True),
             "show_indicators": st.session_state.get("show_indicators", True),
             "show_legends": st.session_state.get("show_legends", True),
             "animation_enabled": st.session_state.get("animation_enabled", False),
             "decimal_places": st.session_state.get("decimal_places", 2),
-            "chart_width": st.session_state.get("chart_width", 12),
-            "chart_height": st.session_state.get("chart_height", 6),
+            "chart_width": st.session_state.get("chart_width", 800),
+            "chart_height": st.session_state.get("chart_height", 400),
             },
             "auto_train_settings": {
             "auto_train": st.session_state.get("auto_train", False),
@@ -278,14 +224,6 @@ with col2:
             "max_training_time": st.session_state.get("max_training_time", 30),
             "training_data_period": st.session_state.get("training_data_period", "1 year"),
             "cpu_usage_limit": st.session_state.get("cpu_usage_limit", 70),
-            },
-            "appearance_settings": {
-            "theme": st.session_state.get("theme", "Auto"),
-            "color_scheme": st.session_state.get("color_scheme", "Default"),
-            "font_size": st.session_state.get("font_size", "Medium"),
-            "sidebar_state": st.session_state.get("sidebar_state", "Expanded"),
-            "page_width": st.session_state.get("page_width", "Normal"),
-            "show_tooltips": st.session_state.get("show_tooltips", True),
             }
         } 
         mian.save_user_settings(user_settings)

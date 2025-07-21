@@ -66,7 +66,6 @@ if submitted and user_input:
         
         if input_type == "command":
             # For commands, show immediate output
-            st.markdown("### 🤖 Processing command...")
             bot_response = run_command(user_input)
             st.success(bot_response)
         else:

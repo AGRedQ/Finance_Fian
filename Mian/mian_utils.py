@@ -129,8 +129,15 @@ def save_user_settings(settings ):
 def load_tracking_tickers():
     filename = 'Mian/tracking_tickers.json'
     if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            return json.load(f)
+        try:
+            with open(filename, 'r') as f:
+                content = f.read().strip()
+                if not content:  # Empty file
+                    return {}
+                data = json.loads(content)
+                return data if data is not None else {}
+        except (json.JSONDecodeError, FileNotFoundError):
+            return {}  # Return empty dict if file is corrupted or not found
     else:
         return {}  # Return empty dict if file doesn't exist
 
@@ -143,6 +150,22 @@ def save_tracking_tickers(tickers_data):
 def add_tracking_ticker(ticker, current_price=None):
     """Add a new ticker to tracking with current timestamp, price, and indicators"""
     tickers_data = load_tracking_tickers()
+    
+    # Convert list format to dict format if needed
+    if isinstance(tickers_data, list):
+        old_list = tickers_data
+        tickers_data = {}
+        # Keep existing tickers in the new format
+        for t in old_list:
+            if t != ticker:  # Don't duplicate if ticker is already in the list
+                tickers_data[t] = {
+                    "added_at": datetime.now().isoformat(),
+                    "last_checked": None,
+                    "last_price": None,
+                    "last_mfi": None,
+                    "last_sma_20": None,
+                    "history": []
+                }
     
     if current_price is None:
         current_price = get_current_price(ticker)
@@ -165,6 +188,15 @@ def add_tracking_ticker(ticker, current_price=None):
 def remove_tracking_ticker(ticker):
     """Remove a ticker from tracking"""
     tickers_data = load_tracking_tickers()
+    
+    # Handle list format
+    if isinstance(tickers_data, list):
+        if ticker in tickers_data:
+            tickers_data.remove(ticker)
+            save_tracking_tickers(tickers_data)
+        return tickers_data
+    
+    # Handle dict format
     if ticker in tickers_data:
         del tickers_data[ticker]
         save_tracking_tickers(tickers_data)
@@ -173,6 +205,24 @@ def remove_tracking_ticker(ticker):
 def update_ticker_price(ticker, new_price=None):
     """Update a ticker's price, MFI, SMA 20 and add to history"""
     tickers_data = load_tracking_tickers()
+    
+    # Convert list format to dict format if needed
+    if isinstance(tickers_data, list):
+        if ticker not in tickers_data:
+            return tickers_data  # Ticker not being tracked
+        # Convert to dict format
+        old_list = tickers_data
+        tickers_data = {}
+        for t in old_list:
+            tickers_data[t] = {
+                "added_at": datetime.now().isoformat(),
+                "last_checked": None,
+                "last_price": None,
+                "last_mfi": None,
+                "last_sma_20": None,
+                "history": []
+            }
+    
     if ticker in tickers_data:
         # Get current indicators
         indicators = get_ticker_indicators(ticker)
@@ -198,11 +248,18 @@ def update_ticker_price(ticker, new_price=None):
 def get_ticker_list():
     """Get list of all tracked ticker symbols"""
     tickers_data = load_tracking_tickers()
+    if isinstance(tickers_data, list):
+        return tickers_data
     return list(tickers_data.keys())
 
 def get_ticker_data(ticker):
     """Get data for a specific ticker"""
     tickers_data = load_tracking_tickers()
+    if isinstance(tickers_data, list):
+        # If it's a list, return basic ticker info
+        if ticker in tickers_data:
+            return {"ticker": ticker, "added_date": None}
+        return None
     return tickers_data.get(ticker, None)
 
 

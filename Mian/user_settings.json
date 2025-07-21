@@ -2,7 +2,7 @@
   "visualization_settings": {
     "visualize": true,
     "chart_type": "Line",
-    "chart_theme": "Light",
+    "chart_theme": "Dark",
     "show_volume": true,
     "show_grid": true,
     "show_indicators": true,
