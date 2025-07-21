@@ -133,41 +133,43 @@ if ticker_input and (search_button or ticker_input):
                     value=market_cap_str
                 )
             
-            # Technical Analysis Section
-            st.subheader("📈 Technical Analysis")
-            
-            # MFI Analysis
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("**Money Flow Index (MFI) Analysis:**")
-                if mfi_value:
-                    if mfi_value > 80:
-                        st.error(f"🔴 **Overbought Signal** - MFI: {mfi_value:.2f}")
-                        st.markdown("The stock may be overvalued and due for a correction.")
-                    elif mfi_value < 20:
-                        st.success(f"🟢 **Oversold Signal** - MFI: {mfi_value:.2f}")
-                        st.markdown("The stock may be undervalued and due for a rebound.")
+            # Technical Analysis Section (controlled by settings)
+            show_indicators = st.session_state.get("show_indicators", True)
+            if show_indicators:
+                st.subheader("📈 Technical Analysis")
+                
+                # MFI Analysis
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**Money Flow Index (MFI) Analysis:**")
+                    if mfi_value:
+                        if mfi_value > 80:
+                            st.error(f"🔴 **Overbought Signal** - MFI: {mfi_value:.2f}")
+                            st.markdown("The stock may be overvalued and due for a correction.")
+                        elif mfi_value < 20:
+                            st.success(f"🟢 **Oversold Signal** - MFI: {mfi_value:.2f}")
+                            st.markdown("The stock may be undervalued and due for a rebound.")
+                        else:
+                            st.info(f"🔵 **Neutral** - MFI: {mfi_value:.2f}")
+                            st.markdown("The stock is in a neutral zone.")
                     else:
-                        st.info(f"🔵 **Neutral** - MFI: {mfi_value:.2f}")
-                        st.markdown("The stock is in a neutral zone.")
-                else:
-                    st.warning("MFI data not available")
-            
-            with col2:
-                st.markdown("**SMA 20 Analysis:**")
-                if sma_20 and current_price:
-                    difference = current_price - sma_20
-                    percentage_diff = (difference / sma_20) * 100
-                    
-                    if current_price > sma_20:
-                        st.success(f"📈 **Above SMA 20** - {bian.format_currency(difference, currency)} ({percentage_diff:.2f}%)")
-                        st.markdown("Price is above the 20-day average, indicating upward momentum.")
+                        st.warning("MFI data not available")
+                
+                with col2:
+                    st.markdown("**SMA 20 Analysis:**")
+                    if sma_20 and current_price:
+                        difference = current_price - sma_20
+                        percentage_diff = (difference / sma_20) * 100
+                        
+                        if current_price > sma_20:
+                            st.success(f"📈 **Above SMA 20** - {bian.format_currency(difference, currency)} ({percentage_diff:.2f}%)")
+                            st.markdown("Price is above the 20-day average, indicating upward momentum.")
+                        else:
+                            st.error(f"📉 **Below SMA 20** - {bian.format_currency(abs(difference), currency)} ({abs(percentage_diff):.2f}%)")
+                            st.markdown("Price is below the 20-day average, indicating downward momentum.")
                     else:
-                        st.error(f"📉 **Below SMA 20** - {bian.format_currency(abs(difference), currency)} ({abs(percentage_diff):.2f}%)")
-                        st.markdown("Price is below the 20-day average, indicating downward momentum.")
-                else:
-                    st.warning("SMA 20 data not available")
+                        st.warning("SMA 20 data not available")
             
             # Company Information
             st.subheader("🏢 Company Information")

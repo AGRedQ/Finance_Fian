@@ -34,7 +34,7 @@ def apply_chart_theme(chart_theme):
 
 
 
-def compare_stocks(data1, data2, chart_width, chart_height, title=None): # Chatbot
+def compare_stocks(data1, data2, title=None): # Chatbot
     import streamlit as st
     
     if data1.empty or data2.empty:
@@ -54,8 +54,11 @@ def compare_stocks(data1, data2, chart_width, chart_height, title=None): # Chatb
 
     # Get chart customization settings
     chart_theme = st.session_state.get("chart_theme", "Light")
-    show_grid = st.session_state.get("show_grid", True)
     show_legends = st.session_state.get("show_legends", True)
+    
+    # Get chart dimensions from settings (convert to inches for matplotlib)
+    chart_width = max(4, min(16, st.session_state.get("chart_width", 800) / 100))  # 4-16 inches
+    chart_height = max(3, min(12, st.session_state.get("chart_height", 400) / 100))  # 3-12 inches
 
     # Normalize both stocks to percentage change (starting at 100)
     stock1_prices = data1.loc[common_dates, 'Close']
@@ -85,8 +88,7 @@ def compare_stocks(data1, data2, chart_width, chart_height, title=None): # Chatb
     # Apply settings
     if show_legends:
         ax.legend()
-    if show_grid:
-        ax.grid(True, alpha=0.3, color=theme_colors['grid_color'])
+    ax.grid(True, alpha=0.3, color=theme_colors['grid_color'])
     
     # Add performance summary (ensure we get scalar values)
     final_perf1 = float(stock1_normalized.iloc[-1]) - 100
@@ -115,7 +117,7 @@ def compare_stocks(data1, data2, chart_width, chart_height, title=None): # Chatb
 
 
 
-def visualize_indicator(data, indicator_name, chart_width = 12, chart_height = 6, title=None): # Chatbot
+def visualize_indicator(data, indicator_name, title=None): # Chatbot
     import streamlit as st
     config = indicator_plot_config.get(indicator_name, {"type": "line", "subplot": False})
     plot_type = config.get("type", "line")
@@ -125,8 +127,11 @@ def visualize_indicator(data, indicator_name, chart_width = 12, chart_height = 6
 
     # Get chart customization settings
     chart_theme = st.session_state.get("chart_theme", "Light")
-    show_grid = st.session_state.get("show_grid", True)
     show_legends = st.session_state.get("show_legends", True)
+    
+    # Get chart dimensions from settings (convert to inches for matplotlib)
+    chart_width = max(4, min(16, st.session_state.get("chart_width", 800) / 100))  # 4-16 inches
+    chart_height = max(3, min(12, st.session_state.get("chart_height", 400) / 100))  # 3-12 inches
 
     for ticker, df in data.items():
         if indicator_name not in df.columns:
@@ -169,8 +174,7 @@ def visualize_indicator(data, indicator_name, chart_width = 12, chart_height = 6
         # Apply settings
         if show_legends:
             plt.legend()
-        if show_grid:
-            plt.grid(True, alpha=0.3, color=theme_colors['grid_color'])
+        plt.grid(True, alpha=0.3, color=theme_colors['grid_color'])
         
         plt.tight_layout()
         
@@ -179,13 +183,14 @@ def visualize_indicator(data, indicator_name, chart_width = 12, chart_height = 6
         plt.close()
 
 
-def display_stock_info(data, ticker, chart_width=12, chart_height=6):
+def display_stock_info(data, ticker):
     """Display stock information with candlestick chart, volume, and general info"""
     import streamlit as st
     import yfinance as yf
     from datetime import datetime
     import sys
     import os
+    import gc  # Garbage collection for memory management
     
     # Import Bian functions
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -203,6 +208,23 @@ def display_stock_info(data, ticker, chart_width=12, chart_height=6):
         st.error(f"Missing required columns: {missing_columns}")
         return
     
+    # Data validation and cleaning
+    try:
+        # Remove any infinite or NaN values that could cause memory issues
+        data = data.replace([np.inf, -np.inf], np.nan).dropna()
+        
+        if data.empty:
+            st.error(f"No valid data available for {ticker} after cleaning")
+            return
+            
+        # Limit data size to prevent memory issues (max 2 years of data)
+        if len(data) > 500:
+            data = data.tail(500)
+            
+    except Exception as e:
+        st.error(f"Error processing data: {str(e)}")
+        return
+    
     # Get current stock info
     try:
         stock = yf.Ticker(ticker)
@@ -217,9 +239,12 @@ def display_stock_info(data, ticker, chart_width=12, chart_height=6):
     chart_theme = st.session_state.get("chart_theme", "Light")
     chart_type = st.session_state.get("chart_type", "Line")
     show_volume = st.session_state.get("show_volume", True)
-    show_grid = st.session_state.get("show_grid", True)
     show_legends = st.session_state.get("show_legends", True)
     
+    # Get chart dimensions from settings (convert to inches for matplotlib)
+    chart_width = max(4, min(16, st.session_state.get("chart_width", 800) / 100))  # 4-16 inches  
+    chart_height = max(3, min(12, st.session_state.get("chart_height", 400) / 100))  # 3-12 inches
+
     # Display general information
     st.subheader(f"📊 {ticker} Stock Information")
     
@@ -250,85 +275,111 @@ def display_stock_info(data, ticker, chart_width=12, chart_height=6):
             st.metric("Market Cap", "N/A")
     
     # Create a professional combined chart with price and volume
-    if show_volume:
-        fig, ax1 = plt.subplots(figsize=(chart_width, chart_height))
-    else:
-        fig, ax1 = plt.subplots(figsize=(chart_width, chart_height))
-    
-    # Apply chart theme
-    reset_matplotlib_style()
-    theme_colors = apply_chart_theme(chart_theme)
-    fig.patch.set_facecolor(theme_colors['bg_color'])
-    
-    # Get currency symbol for chart
-    currency_symbol = bian.get_currency_symbol(currency)
-    
-    # Price chart on primary y-axis
-    close_values = data['Close'].values
-    high_values = data['High'].values
-    low_values = data['Low'].values
-    date_index = data.index
-    
-    # Apply different chart types
-    if chart_type == "Area":
-        ax1.fill_between(date_index, close_values, alpha=0.3, color='#2E86C1', label='Close Price')
-        ax1.plot(date_index, close_values, color='#2E86C1', linewidth=2)
-    elif chart_type == "Bar":
-        ax1.bar(date_index, close_values, color='#2E86C1', alpha=0.7, label='Close Price')
-    else:  # Line or Candlestick (simplified as line for now)
-        ax1.plot(date_index, close_values, label='Close Price', color='#2E86C1', linewidth=2.5)
-    
-    # High-Low range fill (only for Line and Area charts)
-    if chart_type in ["Line", "Area"]:
-        ax1.fill_between(date_index, low_values, high_values, alpha=0.2, color='#85C1E9', label='High-Low Range')
-    
-    ax1.set_xlabel('Date', fontsize=12, fontweight='bold', color=theme_colors['text_color'])
-    ax1.set_ylabel(f'Price ({currency_symbol})', fontsize=12, fontweight='bold', color='#2E86C1')
-    ax1.tick_params(axis='y', labelcolor='#2E86C1')
-    
-    # Apply grid setting
-    if show_grid:
+    try:
+        # Clear any existing figures to free memory
+        plt.close('all')
+        gc.collect()
+        
+        # Reduce chart size if data is large to prevent memory issues
+        if len(data) > 200:
+            chart_width = min(chart_width, 10)
+            chart_height = min(chart_height, 6)
+        
+        if show_volume:
+            fig, ax1 = plt.subplots(figsize=(chart_width, chart_height))
+        else:
+            fig, ax1 = plt.subplots(figsize=(chart_width, chart_height))
+        
+        # Apply chart theme
+        reset_matplotlib_style()
+        theme_colors = apply_chart_theme(chart_theme)
+        fig.patch.set_facecolor(theme_colors['bg_color'])
+        
+        # Get currency symbol for chart
+        currency_symbol = bian.get_currency_symbol(currency)
+        
+        # Price chart on primary y-axis - with memory-safe data conversion
+        close_values = data['Close'].astype(float).values
+        high_values = data['High'].astype(float).values
+        low_values = data['Low'].astype(float).values
+        date_index = data.index
+        
+        # Validate data arrays before plotting
+        if len(close_values) == 0 or len(high_values) == 0 or len(low_values) == 0:
+            st.error("Invalid data arrays for plotting")
+            plt.close(fig)
+            return
+        
+        # Apply different chart types
+        if chart_type == "Area":
+            ax1.fill_between(date_index, close_values, alpha=0.3, color='#2E86C1', label='Close Price')
+            ax1.plot(date_index, close_values, color='#2E86C1', linewidth=2)
+        elif chart_type == "Bar":
+            ax1.bar(date_index, close_values, color='#2E86C1', alpha=0.7, label='Close Price')
+        else:  # Line or Candlestick (simplified as line for now)
+            ax1.plot(date_index, close_values, label='Close Price', color='#2E86C1', linewidth=2.5)
+        
+        # High-Low range fill (only for Line and Area charts)
+        if chart_type in ["Line", "Area"]:
+            ax1.fill_between(date_index, low_values, high_values, alpha=0.2, color='#85C1E9', label='High-Low Range')
+        
+        ax1.set_xlabel('Date', fontsize=12, fontweight='bold', color=theme_colors['text_color'])
+        ax1.set_ylabel(f'Price ({currency_symbol})', fontsize=12, fontweight='bold', color='#2E86C1')
+        ax1.tick_params(axis='y', labelcolor='#2E86C1')
+        
+        # Apply grid setting
         ax1.grid(True, alpha=0.3, linestyle='-', linewidth=0.5, color=theme_colors['grid_color'])
     
-    # Create secondary y-axis for volume (only if show_volume is enabled)
-    if show_volume:
-        ax2 = ax1.twinx()
-        
-        volume_values = data['Volume'].values
-        open_values = data['Open'].values
-        
-        # Color bars based on price movement (green for up, red for down)
-        colors = ['#27AE60' if close_values[i] >= open_values[i] else '#E74C3C' 
-                  for i in range(len(data))]
-        
-        bars = ax2.bar(date_index, volume_values, color=colors, alpha=0.4, width=1.0)
-        ax2.set_ylabel('Volume', fontsize=12, fontweight='bold', color='#7D3C98')
-        ax2.tick_params(axis='y', labelcolor='#7D3C98')
-        
-        # Format volume labels (show in millions/thousands)
-        max_volume = max(volume_values)
-        if max_volume >= 1_000_000:
-            ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x/1_000_000:.1f}M'))
-        elif max_volume >= 1_000:
-            ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x/1_000:.1f}K'))
-    
-    # Set title and layout
-    plt.title(f'{ticker} - Price Analysis', fontsize=16, fontweight='bold', pad=20, color=theme_colors['text_color'])
-    
-    # Create custom legend (only if show_legends is enabled)
-    if show_legends:
-        lines1, labels1 = ax1.get_legend_handles_labels()
+        # Create secondary y-axis for volume (only if show_volume is enabled)
         if show_volume:
-            lines2 = [plt.Rectangle((0,0),1,1, color='#27AE60', alpha=0.4), 
-                      plt.Rectangle((0,0),1,1, color='#E74C3C', alpha=0.4)]
-            labels2 = ['Volume (Up Days)', 'Volume (Down Days)']
-            ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left', fontsize=10)
-        else:
-            ax1.legend(lines1, labels1, loc='upper left', fontsize=10)
-    
-    plt.tight_layout()
-    st.pyplot(fig)
-    plt.close()
+            ax2 = ax1.twinx()
+            
+            volume_values = data['Volume'].astype(float).values
+            open_values = data['Open'].astype(float).values
+            
+            # Validate volume data
+            if len(volume_values) == 0 or len(open_values) == 0:
+                st.warning("Volume data not available")
+            else:
+                # Color bars based on price movement (green for up, red for down)
+                colors = ['#27AE60' if close_values[i] >= open_values[i] else '#E74C3C' 
+                          for i in range(len(data))]
+                
+                bars = ax2.bar(date_index, volume_values, color=colors, alpha=0.4, width=1.0)
+                ax2.set_ylabel('Volume', fontsize=12, fontweight='bold', color='#7D3C98')
+                ax2.tick_params(axis='y', labelcolor='#7D3C98')
+                
+                # Format volume labels (show in millions/thousands)
+                max_volume = max(volume_values) if len(volume_values) > 0 else 0
+                if max_volume >= 1_000_000:
+                    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x/1_000_000:.1f}M'))
+                elif max_volume >= 1_000:
+                    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x/1_000:.1f}K'))
+        
+        # Set title and layout
+        plt.title(f'{ticker} - Price Analysis', fontsize=16, fontweight='bold', pad=20, color=theme_colors['text_color'])
+        
+        # Create custom legend (only if show_legends is enabled)
+        if show_legends:
+            lines1, labels1 = ax1.get_legend_handles_labels()
+            if show_volume:
+                lines2 = [plt.Rectangle((0,0),1,1, color='#27AE60', alpha=0.4), 
+                          plt.Rectangle((0,0),1,1, color='#E74C3C', alpha=0.4)]
+                labels2 = ['Volume (Up Days)', 'Volume (Down Days)']
+                ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left', fontsize=10)
+            else:
+                ax1.legend(lines1, labels1, loc='upper left', fontsize=10)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
+        
+    except Exception as e:
+        st.error(f"Error creating chart: {str(e)}")
+        print(f"Chart creation error: {str(e)}")
+    finally:
+        # Always clean up memory
+        plt.close('all')
+        gc.collect()
     
     # Additional company information (without business summary)
     if info:

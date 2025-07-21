@@ -219,11 +219,11 @@ def run_command(command): # For Chatbot
     if command.startswith("/help"):
         mian.log_activity("❓ Viewed help commands")
         return (
-            "Available commands:<br>"
-            "/help - Show this help message<br>"
-            "/calculate <indicator> <ticker> - Calculate an indicator (e.g., /calculate RSI AAPL)<br>"
-            "/compare <ticker1> <ticker2> - Compare two stocks side by side (e.g., /compare AAPL MSFT)<br>"
-            "/predict <ticker> - Predict stock price (e.g., /predict TSLA)<br>"
+            "Available commands:\n"
+            "/help - Show this help message\n"
+            "/calculate <indicator> <ticker> - Calculate an indicator (e.g., /calculate RSI AAPL)\n"
+            "/compare <ticker1> <ticker2> - Compare two stocks side by side (e.g., /compare AAPL MSFT)\n"
+            "/predict <ticker> - Predict stock price (e.g., /predict TSLA)\n"
             "/display <ticker> - Display candlestick chart, volume, and company info (e.g., /display GOOGL)<br>"
         )
     elif command.startswith("/compare"):
@@ -289,9 +289,26 @@ def run_command(command): # For Chatbot
             return f"📈 Stock information and chart displayed for {ticker}"
         except Exception as e:
             import traceback
+            import gc
+            
+            # Clean up memory on error
+            try:
+                import matplotlib.pyplot as plt
+                plt.close('all')
+                gc.collect()
+            except:
+                pass
+            
             error_details = traceback.format_exc()
             print(f"Full error traceback: {error_details}")
-            return f"Error displaying stock: {str(e)}"
+            
+            # Handle specific error types
+            if "bad allocation" in str(e).lower():
+                return f"Memory error displaying {ticker}. Try again or contact support if this persists."
+            elif "no data" in str(e).lower():
+                return f"No data available for {ticker}. Please check the ticker symbol."
+            else:
+                return f"Error displaying stock: {str(e)}"
     else:
         return "Unknown command. Type /help for available commands."
 
@@ -326,8 +343,3 @@ def process_query(query):
 if __name__ == "__main__":
     # Example usage
     pass
-
-
-
-
-

@@ -7,6 +7,85 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Mian.memory_mian import MemoryMian
 mian = MemoryMian()
 
+# Function to check Gemini API status
+def check_gemini_status():
+    """Check if Gemini API is working properly"""
+    try:
+        from Bian.resources import model
+        # Try a simple test query
+        response = model.generate_content("test")
+        return "✅ Online", "Connected"
+    except Exception as e:
+        return "❌ Offline", "Error"
+
+# Function to check market status
+def check_market_status():
+    """Check if US markets are currently open"""
+    from datetime import datetime, time
+    import pytz
+    
+    try:
+        # Get current time in US Eastern timezone
+        eastern = pytz.timezone('US/Eastern')
+        now = datetime.now(eastern)
+        current_time = now.time()
+        current_day = now.weekday()  # 0=Monday, 6=Sunday
+        
+        # Market hours: 9:30 AM to 4:00 PM ET, Monday to Friday
+        market_open = time(9, 30)
+        market_close = time(16, 0)
+        
+        # Check if it's a weekday and within market hours
+        if current_day < 5 and market_open <= current_time <= market_close:
+            return "🟢 Open", "Trading"
+        else:
+            return "🔴 Closed", "After Hours"
+    except Exception as e:
+        return "❓ Unknown", "Error"
+
+# Function to get real ticker data with indicators
+def get_ticker_metrics(ticker):
+    """Get current price, MFI, and SMA20 for a ticker"""
+    try:
+        # Import backend functions
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+        from Bian.backend_bian import BackendBian
+        
+        bian = BackendBian()
+        
+        # Fetch data with indicators
+        data = bian.calculate_indicators([ticker], period="3mo", indicators=["MFI", "SMA_20"])
+        
+        if ticker not in data or data[ticker].empty:
+            return {"price": "N/A", "change_pct": "N/A", "mfi": "N/A", "sma20": "N/A"}
+        
+        ticker_data = data[ticker]
+        
+        # Get latest values
+        latest_price = float(ticker_data['Close'].iloc[-1])
+        
+        # Calculate daily change
+        if len(ticker_data) >= 2:
+            prev_price = float(ticker_data['Close'].iloc[-2])
+            change_pct = ((latest_price - prev_price) / prev_price) * 100
+        else:
+            change_pct = 0
+        
+        # Get MFI and SMA20
+        mfi = ticker_data['MFI'].iloc[-1] if 'MFI' in ticker_data.columns else None
+        sma20 = ticker_data['SMA_20'].iloc[-1] if 'SMA_20' in ticker_data.columns else None
+        
+        return {
+            "price": f"${latest_price:.2f}",
+            "change_pct": f"{change_pct:+.1f}%",
+            "mfi": f"{mfi:.1f}" if mfi is not None else "N/A",
+            "sma20": f"${sma20:.2f}" if sma20 is not None else "N/A"
+        }
+        
+    except Exception as e:
+        print(f"Error fetching data for {ticker}: {e}")
+        return {"price": "N/A", "change_pct": "N/A", "mfi": "N/A", "sma20": "N/A"}
+
 st.set_page_config(
     page_title="Main Menu - Finance Assistant",
     page_icon="🏠",
@@ -17,7 +96,7 @@ st.title("🏠 Finance Assistant Dashboard")
 st.write("Welcome to your personal finance assistant!")
 
 # Quick stats/overview
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     st.metric(
@@ -27,29 +106,26 @@ with col1:
     )
 
 with col2:
+    # Check Gemini API status
+    gemini_status, gemini_delta = check_gemini_status()
     st.metric(
-        label="🤖 Models Status",
-        value=f"3/3 trained",
-        delta="Online"
+        label="🤖 Gemini API Status",
+        value=gemini_status,
+        delta=gemini_delta
     )
 
 with col3:
+    # Check market status
+    market_status, market_delta = check_market_status()
     st.metric(
-        label="📊 Visualizations",
-        value="ON" if st.session_state.get("visualize", True) else "OFF",
-        delta="Ready"
-    )
-
-with col4:
-    st.metric(
-        label="🔄 Auto Train",
-        value="ON" if st.session_state.get("auto_train", False) else "OFF",
-        delta="Scheduled" if st.session_state.get("auto_train", False) else "Manual"
+        label="� Market Status",
+        value=market_status,
+        delta=market_delta
     )
 
 # Quick actions
 st.header("Quick Actions")
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     if st.button("💬 Start Chat", use_container_width=True):
@@ -60,6 +136,10 @@ with col2:
         st.switch_page("pages/settings.py")
 
 with col3:
+    if st.button("🔮 Prediction Assistant", use_container_width=True):
+        st.switch_page("pages/prediction_assistant.py")
+
+with col4:
     if st.button("📈 Add Ticker", use_container_width=True):
         with st.form("quick_add_ticker"):
             ticker = st.text_input("Enter ticker symbol:")
@@ -69,71 +149,23 @@ with col3:
                         st.session_state.tracking_tickers = []
                     if ticker.upper() not in st.session_state.tracking_tickers:
                         st.session_state.tracking_tickers.append(ticker.upper())
-                        # Log the activity
-                        mian.log_activity(f"📈 Added {ticker.upper()} to tracking list")
                         st.success(f"Added {ticker.upper()}!")
-                        st.rerun()  # Refresh to show new activity
                     else:
                         st.warning(f"{ticker.upper()} already tracked!")
 
-# Current tracking tickers overview
-if st.session_state.get("tracking_tickers"):
-    st.header("📊 Your Tracked Tickers")
-    ticker_cols = st.columns(min(len(st.session_state.tracking_tickers), 4))
-    
-    for i, ticker in enumerate(st.session_state.tracking_tickers[:4]):  # Show max 4
-        with ticker_cols[i % 4]:
-            ticker_data = mian.get_ticker_data(ticker)
-            if ticker_data:
-                indicators = mian.get_ticker_indicators(ticker)
-                current_price = indicators.get("price")
-                mfi = indicators.get("mfi")
-                sma_20 = indicators.get("sma_20")
-                
-                if current_price and mfi is not None and sma_20 is not None:
-                    # Display current indicators without comparisons
-                    price_vs_sma = "📈" if current_price > sma_20 else "📉"
-                    
-                    if mfi > 80:
-                        st.error(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n� MFI: {mfi:.1f}")
-                    elif mfi < 20:
-                        st.success(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
-                    else:
-                        st.info(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
-                else:
-                    st.warning(f"**{ticker}**\n❌ Data unavailable")
-            else:
-                st.info(f"**{ticker}**\n🔄 Loading...")
-    
-    if len(st.session_state.tracking_tickers) > 4:
-        st.caption(f"... and {len(st.session_state.tracking_tickers) - 4} more tickers")
 
-# Recent activity (real-time)
+# Recent activity (mock)
 st.header("📋 Recent Activity")
+activities = [
+    "Added AAPL to tracking list",
+    "Trained price prediction model",
+    "Generated RSI analysis for GOOGL",
+    "Updated visualization settings"
+]
 
-# Get real activities from MemoryMian
-recent_activities = mian.get_recent_activities(limit=5)
-
-if recent_activities:
-    # Display maximum 5 activities
-    for activity in recent_activities[:5]:  # Show maximum 5
-        # Format the activity display
-        time_info = f"{activity.get('display_date', 'Unknown')} at {activity.get('display_time', 'Unknown')}"
-        st.write(f"• {activity['message']}")
-        st.caption(f"  ⏰ {time_info}")
-    
-    # Add clear activities button (for maintenance)
-    if st.button("🗑️ Clear Activity History", type="secondary"):
-        if mian.clear_activities():
-            st.success("Activity history cleared!")
-            st.rerun()
-        else:
-            st.error("Failed to clear activities")
-else:
-    st.info("No recent activities. Start using the app to see your activity history!")
-    # Log the first visit
-    mian.log_activity("🏠 Visited Finance Assistant Dashboard")
+for activity in activities[:3]:  # Show last 3
+    st.write(f"• {activity}")
 
 # Navigation helper
 st.markdown("---")
-st.info("💡 **Navigation**: Use the sidebar to switch between different sections of the app")
+st.info("💡 **Navigation**: Use the sidebar to switch between different sections of the app!")

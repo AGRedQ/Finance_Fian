@@ -24,116 +24,99 @@ tab1, tab2, tab3 = st.tabs(["📊 Visualization", "📋 History", "📈 Tickers"
 with tab1:
     st.header("📊 Visualization Settings")
     
-    # Main visualization toggle
-    st.session_state.visualize = st.checkbox(
-        "Enable Visualizations", 
-        value=st.session_state.visualize,
-        help="Turn on/off chart and graph displays"
-    )
+    # Visualizations are always enabled - removed the toggle
+    st.success("✅ Visualizations are always enabled")
     
-    if st.session_state.visualize:
-        st.success("✅ Visualizations are enabled")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Chart Settings")
-            show_volume = st.checkbox("Show Volume", value=True)
-            show_grid = st.checkbox("Show Grid Lines", value=True)
-            show_indicators = st.checkbox("Show Technical Indicators", value=True)
-        
-        with col2:
-            st.subheader("Display Options")
-            show_legends = st.checkbox("Show Chart Legends", value=True)
-            animation_enabled = st.checkbox("Enable Chart Animations", value=False)
-            decimal_places = st.slider("Price Decimal Places", 0, 6, 2)
-        
-        st.subheader("Chart Dimensions")
-        col1, col2 = st.columns(2)
-        with col1:
-            chart_width = st.slider("Chart Width", 400, 1200, 800)
-        with col2:
-            chart_height = st.slider("Chart Height", 300, 800, 400)
-            
-    else:
-        st.warning("⚠️ Visualizations are disabled")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Chart Settings")
+        show_volume = st.checkbox("Show Volume", value=True)
+        show_indicators = st.checkbox("Show Technical Indicators", value=True)
+    
+    with col2:
+        st.subheader("Display Options")
+        show_legends = st.checkbox("Show Chart Legends", value=True)
+        decimal_places = st.slider("Price Decimal Places", 0, 6, 2)
+    
+    st.subheader("Chart Dimensions")
+    col1, col2 = st.columns(2)
+    with col1:
+        chart_width = st.slider("Chart Width", 400, 1200, 800)
+    with col2:
+        chart_height = st.slider("Chart Height", 300, 800, 400)
 
-# Auto Train Settings Tab
+# History Tab
 with tab2:
-    st.header("🤖 Auto Train Model Settings")
+    st.header("📋 Activity History")
     
-    # Main auto train toggle
-    st.session_state.auto_train = st.checkbox(
-        "Enable Auto Training", 
-        value=st.session_state.auto_train,
-        help="Automatically retrain models when performance drops"
-    )
+    # Get all recent activities
+    recent_activities = mian.get_recent_activities()
     
-    if st.session_state.auto_train:
-        st.success("✅ Auto training is enabled")
+    if recent_activities:
+        st.subheader(f"📊 Recent Activities ({len(recent_activities)})")
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Training Schedule")
-            training_frequency = st.selectbox("Training Frequency", ["Daily", "Weekly", "Monthly"])
-            training_time = st.time_input("Preferred Training Time")
-            retrain_threshold = st.slider("Retrain Accuracy Threshold", 0.5, 1.0, 0.8)
-        
-        with col2:
-            st.subheader("Resource Limits")
-            max_training_time = st.slider("Max Training Time (minutes)", 5, 120, 30)
-            training_data_period = st.selectbox("Training Data Period", ["1 year", "2 years", "5 years", "All available"])
-            cpu_usage_limit = st.slider("CPU Usage Limit (%)", 10, 100, 70)
-        
-        # Model status display
-        # Developer Note: This will becomes available after models are read 
-        st.subheader("📊 Model Status")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Short Term", "92%", "↑2%")
-        with col2:
-            st.metric("Medium Term", "87%", "↓1%")
+        # Clear activities button
+        col1, col2, col3 = st.columns([1, 1, 1])
         with col3:
-            st.metric("Long Term", "89%", "↑3%")
+            if st.button("🗑️ Clear History", type="secondary"):
+                mian.clear_activities()
+                st.success("Activity history cleared!")
+                st.rerun()
         
-        # Manual training buttons
-        st.subheader("Manual Training")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            if st.button("🎯 Train Intent Classifier"):
-                with st.spinner("Training..."):
-                    st.success("Intent classifier training started!")
-        with col2:
-            if st.button("📈 Train Price Predictor"):
-                with st.spinner("Training..."):
-                    st.success("Price predictor training started!")
-        with col3:
-            if st.button("📊 Train Indicator Models"):
-                with st.spinner("Training..."):
-                    st.success("Indicator models training started!")
-        with col4:
-            if st.button("🔄 Train All Models"):
-                with st.spinner("Training all models..."):
-                    st.success("All models training started!")
+        # Display activities in a nice format
+        for i, activity in enumerate(recent_activities):
+            with st.container():
+                col1, col2 = st.columns([3, 1])
+                
+                with col1:
+                    # Format timestamp
+                    from datetime import datetime
+                    try:
+                        timestamp_str = activity.get('timestamp', '')
+                        if 'T' in timestamp_str or 'Z' in timestamp_str:
+                            timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                        else:
+                            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                        formatted_time = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    except:
+                        formatted_time = activity.get('timestamp', 'Unknown time')
+                    
+                    # Handle both 'action' and 'message' keys for backward compatibility
+                    activity_text = activity.get('action', activity.get('message', 'Unknown activity'))
+                    st.markdown(f"**{activity_text}**")
+                    
+                    if 'details' in activity and activity['details']:
+                        st.markdown(f"*{activity['details']}*")
+                
+                with col2:
+                    st.caption(f"🕒 {formatted_time}")
+                
+                # Add separator except for last item
+                if i < len(recent_activities) - 1:
+                    st.markdown("---")
+    
     else:
-        st.warning("⚠️ Auto training is disabled")
-        st.info("You can still train models manually using the buttons below:")
+        st.info("No activities recorded yet. Start using the app to see your activity history!")
         
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            if st.button("Train Intent Classifier", key="manual_intent"):
-                st.info("Manual training started...")
-        with col2:
-            if st.button("Train Price Predictor", key="manual_price"):
-                st.info("Manual training started...")
-        with col3:
-            if st.button("Train All Models", key="manual_all"):
-                st.info("Manual training started...")
+        # Show example of what activities look like
+        st.subheader("📝 Activity Types")
+        st.markdown("""
+        Your activity history will include:
+        - 📊 Stock data requests
+        - 🔍 Stock comparisons
+        - ⚙️ Settings changes
+        - 📈 Ticker additions/removals
+        - 💬 Chatbot interactions
+        """)
 
 # Ticker Management Tab
 with tab3:
     st.header("📈 Ticker Management")
+    
+    # Initialize tracking tickers if not exists
+    if "tracking_tickers" not in st.session_state:
+        st.session_state.tracking_tickers = []
     
     # Add new ticker
     col1, col2 = st.columns([3, 1])
@@ -148,22 +131,62 @@ with tab3:
             elif new_ticker.upper() in st.session_state.tracking_tickers:
                 st.warning(f"{new_ticker.upper()} already tracked!")
     
-    # Display and manage current tickers
-    if st.session_state.tracking_tickers:
-        st.subheader(f"Current Tickers ({len(st.session_state.tracking_tickers)})")
+    # Display tracked tickers using the same logic as frontend_controller.py
+    if st.session_state.get('tracking_tickers'):
+        st.subheader(f"📈 Your Tracked Tickers ({len(st.session_state.tracking_tickers)})")
         
-        # Create columns for ticker display
-        cols_per_row = 4
-        for i in range(0, len(st.session_state.tracking_tickers), cols_per_row):
-            cols = st.columns(cols_per_row)
-            for j, ticker in enumerate(st.session_state.tracking_tickers[i:i+cols_per_row]):
-                with cols[j]:
-                    st.markdown(f"**{ticker}**")
-                    col1, col2 = st.columns([1, 1])
-                    with col1:
-                        st.caption("📊 Active")
-                    with col2:
-                        if st.button("❌", key=f"remove_{ticker}_{i}_{j}"):
+        # Display tickers with real data (show all tickers, not just 4)
+        display_tickers = st.session_state.tracking_tickers
+        
+        # Display in rows of 4
+        for row_start in range(0, len(display_tickers), 4):
+            row_tickers = display_tickers[row_start:row_start + 4]
+            cols = st.columns(len(row_tickers))
+            
+            for i, ticker in enumerate(row_tickers):
+                with cols[i]:
+                    ticker_data = mian.get_ticker_data(ticker)
+                    if ticker_data:
+                        show_indicators = st.session_state.get("show_indicators", True)
+                        
+                        if show_indicators:
+                            indicators = mian.get_ticker_indicators(ticker)
+                            current_price = indicators.get("price")
+                            mfi = indicators.get("mfi")
+                            sma_20 = indicators.get("sma_20")
+                            
+                            if current_price and mfi is not None and sma_20 is not None:
+                                # Display current indicators
+                                price_vs_sma = "📈" if current_price > sma_20 else "📉"
+                                
+                                # Create ticker display with remove button
+                                ticker_container = st.container()
+                                with ticker_container:
+                                    if mfi > 80:
+                                        st.error(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
+                                    elif mfi < 20:
+                                        st.success(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
+                                    else:
+                                        st.info(f"**{ticker}**\n{price_vs_sma} SMA20: ${sma_20:.2f}\n📊 MFI: {mfi:.1f}")
+                                    
+                                    # Add remove button
+                                    if st.button("❌ Remove", key=f"remove_{ticker}_{row_start}_{i}"):
+                                        st.session_state.tracking_tickers.remove(ticker)
+                                        st.rerun()
+                            else:
+                                st.warning(f"**{ticker}**\n❌ Data unavailable")
+                                if st.button("❌ Remove", key=f"remove_na_{ticker}_{row_start}_{i}"):
+                                    st.session_state.tracking_tickers.remove(ticker)
+                                    st.rerun()
+                        else:
+                            # Show ticker without indicators when show_indicators is disabled
+                            st.info(f"**{ticker}**\n📊 Tracking enabled")
+                            if st.button("❌ Remove", key=f"remove_{ticker}_{row_start}_{i}"):
+                                st.session_state.tracking_tickers.remove(ticker)
+                                st.rerun()
+                    else:
+                        st.info(f"**{ticker}**\n🔄 Loading...")
+                        if st.button("❌ Remove", key=f"remove_loading_{ticker}_{row_start}_{i}"):
                             st.session_state.tracking_tickers.remove(ticker)
                             st.rerun()
         
@@ -180,8 +203,8 @@ with tab3:
                 ticker_text = ", ".join(st.session_state.tracking_tickers)
                 st.code(ticker_text)
         with col3:
-            if st.button("🔄 Refresh Status"):
-                st.info("Ticker status refreshed!")
+            if st.button("🔄 Refresh Data"):
+                st.success("Data will refresh on next load!")
     
     else:
         st.info("No tickers in your tracking list. Add some tickers to get started!")
@@ -206,24 +229,12 @@ with col2:
         # Save settings to file with nested structure for better management
         user_settings = {
             "visualization_settings": {
-            "visualize": st.session_state.get("visualize", True),
             "show_volume": st.session_state.get("show_volume", True),
-            "show_grid": st.session_state.get("show_grid", True),
             "show_indicators": st.session_state.get("show_indicators", True),
             "show_legends": st.session_state.get("show_legends", True),
-            "animation_enabled": st.session_state.get("animation_enabled", False),
             "decimal_places": st.session_state.get("decimal_places", 2),
             "chart_width": st.session_state.get("chart_width", 800),
             "chart_height": st.session_state.get("chart_height", 400),
-            },
-            "auto_train_settings": {
-            "auto_train": st.session_state.get("auto_train", False),
-            "training_frequency": st.session_state.get("training_frequency", "Daily"),
-            "training_time": str(st.session_state.get("training_time", "")),
-            "retrain_threshold": st.session_state.get("retrain_threshold", 0.8),
-            "max_training_time": st.session_state.get("max_training_time", 30),
-            "training_data_period": st.session_state.get("training_data_period", "1 year"),
-            "cpu_usage_limit": st.session_state.get("cpu_usage_limit", 70),
             }
         } 
         mian.save_user_settings(user_settings)

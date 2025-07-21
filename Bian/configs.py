@@ -5,7 +5,7 @@ from collections import OrderedDict
 indicators_list = [
     "MACD", "MACD_signal", "MACD_diff", "ADX", "CCI", "Ichimoku_a", "Ichimoku_b",
     "PSAR", "STC", "RSI", "Stoch", "Stoch_signal", "AwesomeOsc", "KAMA", "ROC", "TSI",
-    "UO", "ATR", "Bollinger_hband", "Bollinger_lband", "Bollinger_mavg", "Donchian_hband",
+    "UO", "MFI", "ATR", "Bollinger_hband", "Bollinger_lband", "Bollinger_mavg", "Donchian_hband",
     "Donchian_lband", "Keltner_hband", "Keltner_lband", "Donchian_width", "SMA_5", "EMA_5",
     "WMA_5", "DEMA_5", "TEMA_5", "SMA_10", "EMA_10", "WMA_10", "DEMA_10", "TEMA_10", 
     "SMA_20", "EMA_20", "WMA_20", "DEMA_20", "TEMA_20", "SMA_50", "EMA_50", "WMA_50", 
@@ -41,6 +41,7 @@ indicator_plot_config = {
     "ROC": {"type": "line", "guides": [0], "subplot": True},
     "TSI": {"type": "line", "guides": [0], "subplot": True},
     "UO": {"type": "line", "guides": [30, 70], "subplot": True},
+    "MFI": {"type": "line", "guides": [20, 80], "subplot": True},
 
     # Volatility
     "ATR": {"type": "line", "subplot": True},
@@ -108,6 +109,7 @@ indicator_funcs = OrderedDict({
     "ROC": lambda df: ta.momentum.ROCIndicator(close=df["Close"].squeeze()).roc(),
     "TSI": lambda df: ta.momentum.TSIIndicator(close=df["Close"].squeeze()).tsi(),
     "UO": lambda df: ta.momentum.UltimateOscillator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).ultimate_oscillator(),
+    "MFI": lambda df: ta.volume.MFIIndicator(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze(), volume=df["Volume"].squeeze()).money_flow_index(),
 
     # Volatility indicators
     "ATR": lambda df: ta.volatility.AverageTrueRange(high=df["High"].squeeze(), low=df["Low"].squeeze(), close=df["Close"].squeeze()).average_true_range(),

@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+matplotlib
+yfinance
+plotly
+scikit-learn
+xgboost
+prophet
+pandas-datareader
+google-generativeai
+pytz
