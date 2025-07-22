@@ -1,3 +1,18 @@
-[
-  "AAPL"
-]
+{
+  "AAPL": {
+    "added_at": "2025-07-22T08:34:34.364778",
+    "last_checked": null,
+    "last_price": null,
+    "last_mfi": null,
+    "last_sma_20": null,
+    "history": []
+  },
+  "GOOGL": {
+    "added_at": "2025-07-22T08:34:34.673942",
+    "last_checked": "2025-07-22T08:34:34.673946",
+    "last_price": 190.10000610351562,
+    "last_mfi": 70.69,
+    "last_sma_20": 177.79,
+    "history": []
+  }
+}

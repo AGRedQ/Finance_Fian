@@ -10,3 +10,5 @@ prophet
 pandas-datareader
 google-generativeai
 pytz
+python-dotenv
+ta

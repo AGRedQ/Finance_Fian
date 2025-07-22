@@ -95,6 +95,14 @@ st.set_page_config(
 st.title("🏠 Finance Assistant Dashboard")
 st.write("Welcome to your personal finance assistant!")
 
+# Initialize tracking tickers from memory if not in session state
+if "tracking_tickers" not in st.session_state:
+    try:
+        saved_tickers = mian.load_tracking_tickers()
+        st.session_state.tracking_tickers = saved_tickers if saved_tickers else []
+    except:
+        st.session_state.tracking_tickers = []
+
 # Quick stats/overview
 col1, col2, col3 = st.columns(3)
 
@@ -140,18 +148,42 @@ with col3:
         st.switch_page("pages/prediction_assistant.py")
 
 with col4:
-    if st.button("📈 Add Ticker", use_container_width=True):
-        with st.form("quick_add_ticker"):
-            ticker = st.text_input("Enter ticker symbol:")
-            if st.form_submit_button("Add"):
-                if ticker:
-                    if "tracking_tickers" not in st.session_state:
+    if st.button("📈 Ticker Search", use_container_width=True):
+        st.switch_page("pages/ticker_search.py")
+
+# Quick Add Ticker Section
+st.header("📈 Quick Add Ticker")
+with st.container():
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        new_ticker = st.text_input("Add ticker to your watchlist", placeholder="e.g., AAPL, GOOGL, MSFT", key="quick_add_ticker")
+    with col2:
+        st.write("")  # Add spacing
+        if st.button("➕ Add", use_container_width=True, key="quick_add_btn"):
+            if new_ticker:
+                # Initialize tracking_tickers from memory if not in session
+                if "tracking_tickers" not in st.session_state:
+                    try:
+                        saved_tickers = mian.load_tracking_tickers()
+                        st.session_state.tracking_tickers = saved_tickers if saved_tickers else []
+                    except:
                         st.session_state.tracking_tickers = []
-                    if ticker.upper() not in st.session_state.tracking_tickers:
-                        st.session_state.tracking_tickers.append(ticker.upper())
-                        st.success(f"Added {ticker.upper()}!")
-                    else:
-                        st.warning(f"{ticker.upper()} already tracked!")
+                
+                ticker_upper = new_ticker.upper()
+                if ticker_upper not in st.session_state.tracking_tickers:
+                    # Add to session state
+                    st.session_state.tracking_tickers.append(ticker_upper)
+                    # Save to persistent memory
+                    try:
+                        mian.save_tracking_tickers(st.session_state.tracking_tickers)
+                        st.success(f"✅ Added {ticker_upper} to your watchlist!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Error saving ticker: {e}")
+                else:
+                    st.warning(f"⚠️ {ticker_upper} is already in your watchlist!")
+            else:
+                st.error("Please enter a ticker symbol!")
 
 
 # Recent activity (mock)

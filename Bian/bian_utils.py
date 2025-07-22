@@ -221,7 +221,8 @@ def run_command(command): # For Chatbot
         return (
             "Available commands:\n"
             "/help - Show this help message\n"
-            "/calculate <indicator> <ticker> - Calculate an indicator (e.g., /calculate RSI AAPL)\n"
+            "/calculate <indicator> <ticker> - Calculate technical indicators (e.g., /calculate RSI AAPL, /calculate SMA_20 MSFT)\n"
+            "  • Supported indicators: RSI, MACD, SMA_20, EMA_50, ATR, MFI, Bollinger_hband, and many more\n"
             "/compare <ticker1> <ticker2> - Compare two stocks side by side (e.g., /compare AAPL MSFT)\n"
             "/predict <ticker> - Predict stock price (e.g., /predict TSLA)\n"
             "/display <ticker> - Display candlestick chart, volume, and company info (e.g., /display GOOGL)<br>"
@@ -254,8 +255,173 @@ def run_command(command): # For Chatbot
         except Exception as e:
             return f"Error comparing stocks: {str(e)}"
     elif command.startswith("/calculate"):
-        mian.log_activity("🧮 Used calculate command")
-        return "Calculate command placeholder."
+        try:
+            # Parse indicator and ticker
+            parts = command.strip().split()
+            if len(parts) < 3:
+                return "Usage: /calculate <indicator> <ticker>\nExample: /calculate RSI AAPL\nAvailable indicators: RSI, MACD, SMA_20, EMA_50, Bollinger_hband, ATR, MFI, etc."
+            
+            indicator_name = parts[1].upper()
+            ticker = parts[2].upper()
+            
+            # Import the indicators list and functions
+            from Bian.configs import indicators_list, indicator_funcs, indicator_plot_config
+            
+            # Check if indicator is supported
+            if indicator_name not in indicators_list:
+                # Categorize indicators based on the configs structure
+                trend_indicators = [name for name in indicators_list if any(x in name for x in ["MACD", "ADX", "CCI", "Ichimoku", "PSAR", "STC", "SMA", "EMA", "WMA", "DEMA", "TEMA"])][:8]
+                momentum_indicators = [name for name in indicators_list if any(x in name for x in ["RSI", "Stoch", "AwesomeOsc", "KAMA", "ROC", "TSI", "UO", "MFI"])]
+                volatility_indicators = [name for name in indicators_list if any(x in name for x in ["ATR", "Bollinger", "Donchian", "Keltner"])]
+                
+                return (f"Indicator '{indicator_name}' not supported.\n"
+                       f"📈 Trend: {', '.join(trend_indicators)}\n"
+                       f"⚡ Momentum: {', '.join(momentum_indicators)}\n"
+                       f"📊 Volatility: {', '.join(volatility_indicators)}\n"
+                       f"💡 Tip: Try /calculate RSI AAPL or /calculate SMA_20 MSFT")
+            
+            # Validate ticker
+            if not check_valid_ticker(ticker):
+                return f"Invalid ticker: {ticker}"
+            
+            # Fetch data for calculation (need enough data for indicators)
+            data = extract_data_yf([ticker], Period="1y")
+            if ticker not in data or data[ticker].empty:
+                return f"Could not fetch data for {ticker}."
+            
+            ticker_data = data[ticker]
+            if len(ticker_data) < 50:  # Need sufficient data for indicators
+                return f"Insufficient data for {ticker} to calculate {indicator_name}"
+            
+            # Calculate the indicator
+            if indicator_name not in indicator_funcs:
+                return f"Calculation function not available for {indicator_name}"
+            
+            try:
+                # Calculate indicator values
+                indicator_values = indicator_funcs[indicator_name](ticker_data)
+                
+                # Get the latest value
+                latest_value = indicator_values.dropna().iloc[-1] if not indicator_values.dropna().empty else None
+                
+                if latest_value is None:
+                    return f"Could not calculate {indicator_name} for {ticker} - insufficient data or calculation error"
+                
+                # Add indicator to dataframe for visualization
+                ticker_data[indicator_name] = indicator_values
+                
+                # Log the activity
+                mian.log_activity(f"🧮 Calculated {indicator_name} for {ticker}")
+                
+                # Create visualization using Fian
+                data_dict = {ticker: ticker_data}
+                fian.visualize_indicator(data_dict, indicator_name, title=f"{ticker} - {indicator_name} Analysis")
+                
+                # Get indicator configuration for smarter interpretation
+                config = indicator_plot_config.get(indicator_name, {})
+                guides = config.get("guides", [])
+                plot_type = config.get("type", "line")
+                paired_indicator = config.get("paired", None)
+                
+                # Add paired indicator info if available
+                paired_info = ""
+                if paired_indicator and paired_indicator in ticker_data.columns:
+                    paired_value = ticker_data[paired_indicator].dropna().iloc[-1]
+                    paired_info = f"\n🔗 {paired_indicator}: {paired_value:.2f}"
+                
+                # Format the latest value with intelligent interpretation based on config
+                if guides:  # Use guides from config for interpretation
+                    formatted_value = f"{latest_value:.2f}"
+                    interpretation = ""
+                    
+                    # Smart interpretation based on guide levels
+                    if len(guides) == 1:  # Single guide (usually zero line)
+                        if latest_value > guides[0]:
+                            interpretation = f" (Above {guides[0]} - positive signal)"
+                        else:
+                            interpretation = f" (Below {guides[0]} - negative signal)"
+                    elif len(guides) == 2:  # Two guides (usually overbought/oversold)
+                        lower_guide, upper_guide = sorted(guides)
+                        if latest_value > upper_guide:
+                            interpretation = f" (Above {upper_guide} - overbought zone)"
+                        elif latest_value < lower_guide:
+                            interpretation = f" (Below {lower_guide} - oversold zone)"
+                        else:
+                            interpretation = f" (Between {lower_guide}-{upper_guide} - neutral zone)"
+                    
+                    # Add specific interpretations for well-known indicators
+                    if indicator_name == "RSI":
+                        if latest_value > 70:
+                            interpretation = " (Overbought - consider selling)"
+                        elif latest_value < 30:
+                            interpretation = " (Oversold - consider buying)"
+                        else:
+                            interpretation = " (Neutral zone)"
+                    elif indicator_name == "MFI":
+                        if latest_value > 80:
+                            interpretation = " (Overbought - high selling pressure)"
+                        elif latest_value < 20:
+                            interpretation = " (Oversold - high buying opportunity)"
+                        else:
+                            interpretation = " (Neutral money flow)"
+                    elif indicator_name in ["Stoch", "Stoch_signal"]:
+                        if latest_value > 80:
+                            interpretation = " (Overbought - potential reversal)"
+                        elif latest_value < 20:
+                            interpretation = " (Oversold - potential bounce)"
+                        else:
+                            interpretation = " (Neutral momentum)"
+                    
+                    return f"📊 {indicator_name} for {ticker}: {formatted_value}{interpretation}{paired_info}"
+                    
+                elif "SMA" in indicator_name or "EMA" in indicator_name or "WMA" in indicator_name or "DEMA" in indicator_name or "TEMA" in indicator_name:
+                    # Moving averages - compare with current price and get currency info
+                    current_price = float(ticker_data['Close'].iloc[-1])
+                    
+                    # Get currency information for proper formatting
+                    try:
+                        import yfinance as yf
+                        stock = yf.Ticker(ticker)
+                        info = stock.info
+                        currency = get_currency_info(info, ticker)
+                        
+                        formatted_value = format_currency(latest_value, currency)
+                        formatted_current = format_currency(current_price, currency)
+                    except:
+                        formatted_value = f"${latest_value:.2f}"
+                        formatted_current = f"${current_price:.2f}"
+                    
+                    price_vs_ma = "above" if current_price > latest_value else "below"
+                    percentage_diff = abs((current_price - latest_value) / latest_value * 100)
+                    
+                    trend_signal = "📈 Bullish trend" if current_price > latest_value else "📉 Bearish trend"
+                    
+                    return f"📊 {indicator_name} for {ticker}: {formatted_value}\nCurrent price ({formatted_current}) is {price_vs_ma} the {indicator_name} by {percentage_diff:.2f}%\n{trend_signal}{paired_info}"
+                    
+                else:
+                    # General indicators - format based on typical ranges
+                    if latest_value > 1000:
+                        formatted_value = f"{latest_value:,.0f}"
+                    elif latest_value > 10:
+                        formatted_value = f"{latest_value:.2f}"
+                    else:
+                        formatted_value = f"{latest_value:.4f}"
+                    
+                    # Add context based on plot type
+                    if plot_type == "histogram":
+                        context = " (Histogram indicator - check chart for trend)"
+                    elif config.get("subplot", False):
+                        context = " (Oscillator - check against historical levels)"
+                    else:
+                        context = " (Price overlay indicator)"
+                    
+                    return f"📊 {indicator_name} for {ticker}: {formatted_value}{context}{paired_info}"
+                
+            except Exception as calc_error:
+                return f"Error calculating {indicator_name} for {ticker}: {str(calc_error)}"
+            
+        except Exception as e:
+            return f"Error processing calculate command: {str(e)}"
     elif command.startswith("/predict"):
         mian.log_activity("🔮 Used predict command")
         return "Predict command placeholder."

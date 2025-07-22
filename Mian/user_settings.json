@@ -1,10 +1,8 @@
 {
   "visualization_settings": {
     "show_volume": true,
-    "show_grid": true,
     "show_indicators": true,
     "show_legends": true,
-    "animation_enabled": false,
     "decimal_places": 2,
     "chart_width": 800,
     "chart_height": 400

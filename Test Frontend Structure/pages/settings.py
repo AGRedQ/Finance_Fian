@@ -114,9 +114,13 @@ with tab2:
 with tab3:
     st.header("📈 Ticker Management")
     
-    # Initialize tracking tickers if not exists
+    # Initialize tracking tickers from memory if not in session state
     if "tracking_tickers" not in st.session_state:
-        st.session_state.tracking_tickers = []
+        try:
+            saved_tickers = mian.load_tracking_tickers()
+            st.session_state.tracking_tickers = saved_tickers if saved_tickers else []
+        except:
+            st.session_state.tracking_tickers = []
     
     # Add new ticker
     col1, col2 = st.columns([3, 1])

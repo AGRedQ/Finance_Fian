@@ -9,11 +9,35 @@ For an automated setup and launch, simply run:
 ```bash
 py run.py
 ```
+## Gemini API
+
+Please remember to have Gemini API ready (since Github prohibits sharing personal API_KEYS)
+
 
 This will automatically:
 - Install all required dependencies from requirements.txt
 - Launch the Finance Assistant application
 - Open your browser to the application
+
+## 🎓 For Assignment Submission/Teacher Testing
+
+**Important for Teachers/Evaluators:**
+
+1. **Quick Setup**: Run `py run.py` and select option **"1. Use teacher/demo API key"**
+2. **API Key**: The student should replace `TEACHER_DEMO_KEY_HERE` in `run.py` (line ~80) with their actual Gemini API key
+3. **Full Testing**: This enables complete chatbot functionality including:
+   - `/help` - List all commands
+   - `/display AAPL` - Show stock analysis with charts
+   - `/compare AAPL MSFT` - Compare two stocks
+   - `/calculate RSI AAPL` - Calculate technical indicators
+   - Chat queries - Ask questions about stocks and technical analysis
+
+**Features to Test:**
+- 💬 AI Chatbot with stock analysis commands
+- 📊 Real-time stock data visualization  
+- 🔧 Technical indicator calculations (RSI, MACD, SMA, etc.)
+- 📈 Stock comparison charts
+- ⚙️ Settings and customization options
 
 ## Manual Installation
 
