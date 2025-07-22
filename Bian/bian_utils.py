@@ -224,7 +224,6 @@ def run_command(command): # For Chatbot
             "/calculate <indicator> <ticker> - Calculate technical indicators (e.g., /calculate RSI AAPL, /calculate SMA_20 MSFT)\n"
             "  • Supported indicators: RSI, MACD, SMA_20, EMA_50, ATR, MFI, Bollinger_hband, and many more\n"
             "/compare <ticker1> <ticker2> - Compare two stocks side by side (e.g., /compare AAPL MSFT)\n"
-            "/predict <ticker> - Predict stock price (e.g., /predict TSLA)\n"
             "/display <ticker> - Display candlestick chart, volume, and company info (e.g., /display GOOGL)<br>"
         )
     elif command.startswith("/compare"):
@@ -422,9 +421,6 @@ def run_command(command): # For Chatbot
             
         except Exception as e:
             return f"Error processing calculate command: {str(e)}"
-    elif command.startswith("/predict"):
-        mian.log_activity("🔮 Used predict command")
-        return "Predict command placeholder."
     elif command.startswith("/display"):
         try:
             # Parse ticker
