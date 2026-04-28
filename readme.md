@@ -3,6 +3,10 @@
 
 # Finance Assistant
 
+## Components
+Fian is Frontend Module
+Bian is Backend Module
+Mian is Middle-end Module and Memory
 ## Quick Start (Recommended)
 
 For an automated setup and launch, simply run:
