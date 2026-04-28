@@ -10,7 +10,14 @@ Bian is Backend Module
 
 Mian is Middle-end Module and Memory
 
-## Quick Start (Recommended)
+# Features
+- Automatic Data Extraction from YahooFinance's database
+- Chatbot for conversation
+- Data Analyze with common technical analysis
+- Data saving between sessions
+
+
+## Quick Start 
 
 For an automated setup and launch, simply run:
 ```bash
